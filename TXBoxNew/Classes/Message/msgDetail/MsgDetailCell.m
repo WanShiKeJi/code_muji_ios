@@ -102,9 +102,9 @@
     UIImage *normal , *focused;
     if (message.type == MessageTypeMe) {
         
-        normal = [UIImage imageNamed:@"chatto_bg_normal.png"];//messages_right_bubble
+        normal = [UIImage imageNamed:@"SenderTextNodeBg_normal"];//messages_right_bubble
         normal = [normal stretchableImageWithLeftCapWidth:normal.size.width * 0.5 topCapHeight:normal.size.height * 0.7];
-        focused = [UIImage imageNamed:@"chatto_bg_focused.png"];
+        focused = [UIImage imageNamed:@"SenderTextNodeBg_selected"];
         focused = [focused stretchableImageWithLeftCapWidth:focused.size.width * 0.5 topCapHeight:focused.size.height * 0.7];
     }else{
         

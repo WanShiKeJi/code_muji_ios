@@ -1,0 +1,60 @@
+/* 
+  Localizable.strings
+  TXBoxNew
+
+  Created by Naron on 15/5/13.
+  Copyright (c) 2015年 playtime. All rights reserved.
+*/
+
+CFBundleDisplayName ="通信盒子";
+
+"Phone" = "电话";//电话
+"Message" = "信息";
+"Contacts" = "通讯录";
+"Discovery" = "发现";
+
+"Communication_Corp" = "移动";//Communication Corp
+"Unicom" = "联通";//联通
+"Telecom" = "电信";//电信
+
+"Send" = "发送";//发送
+"Configure" = "配置";//配置
+"Other" = "其它";//其它
+"Setting" = "设置";//设置
+"Peripheral" = "外设";//外设
+"Version" = "版本";//版本
+"Peripheral_Version" = "设备固件版本";//设备固件版本
+"Vibrate" = "振动";//振动
+
+"E-mail" = "邮箱";//邮箱
+"MuJi-Number" = "拇机号码";//拇机号码
+"Connected" = "已连接";//已连接
+"Ununited" = "未连接";//未连接
+"Search_device" = "查找设备";//查找设备
+"Searching" = "正在查找...";//正在查找
+"My_device" = "我的设备";
+"Device" = "设备";//设备
+
+"Sure" = "确定";//确定
+"Yes" = "是";  //是
+"No" = "否";    //否
+"Cancel" = "取消";//取消
+"Alerts" = "提示";//提示
+"Call_Forwarding" = "呼转到";//呼转到...
+"Cancel_Call_Forwarding" = "取消呼转到";//取消呼转到...
+"The_Call_Forwarding_was_get_info" = "呼叫转移需要拇机号码等配置信息，请填写";
+"Please_enter_the_correct_info" = "请输入正确的邮箱和号码";//
+
+
+"Add_Ctontacts" = "添加联系人";//添加联系人
+"Delete" = "删除";//删除
+"Please_enter_number_or_letter_of_fuzzy_search" = "输入数字或拼音模糊搜索";//输入数字或拼音模糊搜索
+"Calling" = "正在呼叫...";//正在呼叫
+"Call_Over" = "结束通话";//结束通话
+"UnSetting" = "未设置";//未设置
+"New_Msg" = "新信息";//新信息
+"New_Person" = "新增联系人";//新增联系人
+"Unknow" = "未知";//"未知";
+
+"Configure_E-mail_MuJi-Number"= "配置邮箱和拇机号码";//配置邮箱和拇机号码
+

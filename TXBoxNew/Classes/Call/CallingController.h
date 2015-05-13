@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface CallingController : UIViewController
-@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
-@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
-@property (weak, nonatomic) IBOutlet UILabel *timeLength;
--(IBAction)cut:(UIButton *)sender;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;    //姓名
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;  //号码
+@property (weak, nonatomic) IBOutlet UILabel *timeLength;   //通话时长
+-(IBAction)cut:(UIButton *)sender;  //挂断
 @end

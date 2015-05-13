@@ -36,11 +36,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TXBoxNew/Classes/Call/CallingController.m"
-            timestampString = "452508608.434424"
+            timestampString = "453024837.350061"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
             landmarkName = "-viewWillAppear:"
             landmarkType = "5">
          </BreakpointContent>
@@ -52,44 +52,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TXBoxNew/Classes/Call/CallingController.m"
-            timestampString = "452574799.88642"
+            timestampString = "453024837.350061"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "247"
-            endingLineNumber = "247"
+            startingLineNumber = "248"
+            endingLineNumber = "248"
             landmarkName = "-viewWillDisappear:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TXBoxNew/Peripheral_connect/call/TXCallAction.m"
-            timestampString = "452574799.88642"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "146"
-            endingLineNumber = "146"
-            landmarkName = "-saveDataWithHisNumber:hisName:startDate:timeLength:callDirection:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TXBoxNew/Classes/Contacts/ContactersController.m"
-            timestampString = "452661608.710286"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "377"
-            endingLineNumber = "377"
-            landmarkName = "-msgsBtnClick:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -115,29 +83,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TXBoxNew/Classes/Message/MsgDetailCell.m"
-            timestampString = "452683882.853898"
+            filePath = "TXBoxNew/Classes/Discover/BLEDevicesController.m"
+            timestampString = "453018091.271071"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "16"
-            endingLineNumber = "16"
-            landmarkName = "-initWithStyle:reuseIdentifier:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TXBoxNew/Classes/Message/MsgDetailCell.m"
-            timestampString = "452683904.321435"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "79"
-            endingLineNumber = "79"
-            landmarkName = "-setMsgFrame:"
+            startingLineNumber = "67"
+            endingLineNumber = "67"
+            landmarkName = "-switchsActions:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

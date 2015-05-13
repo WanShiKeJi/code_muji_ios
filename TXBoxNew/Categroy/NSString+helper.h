@@ -48,4 +48,14 @@
 -(NSString *)purifyString;
 
 -(void)saveToNSDefaultWithKey:(NSString*)key;
+
+/*邮箱验证*/
+-(BOOL)isValidateEmail:(NSString *)email;
+/*手机号码验证*/
+-(BOOL) isValidateMobile:(NSString *)mobile;
+
+/*车牌号验证 */
+-(BOOL) validateCarNo:(NSString* )carNo;
+
+
 @end

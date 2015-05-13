@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import "TXSqliteOperate.h"
 
-@interface AppDelegate ()
+@interface AppDelegate ()<UIAlertViewDelegate>
 
 @end
 
@@ -26,9 +26,32 @@
     //修改导航栏的sytle
     [self changeNavigationBarStyle];
     
+    usDefaults = [NSUserDefaults standardUserDefaults];
+    [usDefaults setValue:@"0" forKey:call_divert];//呼转状态
+    //提示绑定拇机号码
+    if (![[usDefaults valueForKey:@"isSetting"] intValue]) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"是否绑定拇机号码？" delegate:self cancelButtonTitle:@"以后再说" otherButtonTitles:@"确定", nil];
+        alert.delegate = self;
+        alert.alertViewStyle =UIAlertViewStylePlainTextInput;
+        [alert show];
+
+    }
+    
+        
+    
     return YES;
 }
 
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 1) {
+        VCLog(@"sure,set number:13698006536");
+        //保存拇机号码 muji_bind_number
+        [usDefaults setValue:@"13698006536" forKey:@"muji_bind_number"];
+        //保存isSetting状态
+        [usDefaults setValue:@"1" forKey:@"isSetting"];
+    }
+}
 -(void) changeNavigationBarStyle
 {
     //背景颜色
@@ -119,6 +142,8 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    //保存isSetting状态
+    [usDefaults setValue:@"1" forKey:@"isSetting"];
 }
 
 @end

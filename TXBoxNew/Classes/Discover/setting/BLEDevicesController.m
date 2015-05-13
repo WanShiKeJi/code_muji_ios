@@ -25,32 +25,77 @@
 
 @property (strong,nonatomic) NSTimer *connectTimer;
 @property (strong,nonatomic) UIActivityIndicatorView *activeView;
+@property (strong,nonatomic) UISwitch *switchs;
 @property (assign,nonatomic) int times;
 @property (strong,nonatomic) NSString *strings;
 @end
 
 @implementation BLEDevicesController
 
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.title = NSLocalizedString(@"Device", nil);
     
     // BLE
     [self createBLECentralManager];
     
-    self.activeView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    self.activeView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH-100, 40, 30, 30)];
     self.activeView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+    self.activeView.color = [UIColor redColor];
+    self.activeView.hidesWhenStopped = YES;
+    [self.view addSubview:self.activeView];
     
-    //开一个定时器监控扫描时间
+    //开关
+    self.switchs =[[UISwitch alloc] initWithFrame:CGRectMake(DEVICE_WIDTH-60, 5, 0, 0)];
+    [self.switchs addTarget:self action:@selector(switchsActions:) forControlEvents:UIControlEventValueChanged];
+    
+    //开一个定时器设定扫描时间
     self.connectTimer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(connectTimeout:) userInfo:nil  repeats:YES];
-    self.times = 30;
+    
     
     
     //数组保存找到的设备
     self.peripheralArray = [[NSMutableArray alloc] init];
-    //[self.peripheralArray addObject:@"1"];
-    //[self.peripheralArray addObject:@"2"];
+    [self.peripheralArray addObject:@"1"];
+    [self.peripheralArray addObject:@"2"];
     
-    self.strings = @"";
+    self.strings = [NSString stringWithFormat:NSLocalizedString(@"Search_device", nil)];
+    
+    
+}
+
+#pragma mark -- 开关 Actions
+-(void) switchsActions:(UISwitch *)swh
+{
+    BOOL isButton = [swh isOn];
+    if (isButton) {
+        self.times = 10;
+        //活动指示器
+        [self.activeView startAnimating];
+        
+        //开始扫描外设
+        [self scanForPeripherals];
+        //打开定时器
+        [self.connectTimer fire];
+        self.strings = NSLocalizedString(@"Searching", nil);
+        
+        
+        //VCLog(@"000");
+        
+    }else
+    {
+        [self.manager stopScan];//停止扫描
+        [self.activeView stopAnimating];
+        self.strings = NSLocalizedString(@"Search_device", nil);
+    }
+
+    [self.tableView reloadData];
 }
 
 #pragma mark --创建central并扫描外设
@@ -92,10 +137,9 @@
 //3.扫描外设
 -(void)scanForPeripherals
 {
-    //NSDictionary *dict = [[NSDictionary alloc] init];
-    
     [self.manager scanForPeripheralsWithServices:nil options:nil];//Services为nil表示扫描所有外设
 }
+
 //4.发现蓝牙设备，返回设备参数
 -(void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
@@ -118,7 +162,7 @@
 // 5.2连接成功
 -(void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-    VCLog(@"连接成功 :%@",peripheral);
+    VCLog(@"connect suc :%@",peripheral);
     //[self.connectTimer invalidate];//停止计时
     
     peripheral.delegate = self;
@@ -225,7 +269,7 @@
     }
 }
 
-#pragma mark - Table view data source
+#pragma mark - TableView
 
 //return 分区
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -244,17 +288,19 @@
 
 //返回cell
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     BLEDeviceCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BLEDevice" forIndexPath:indexPath];
     cell.selectionStyle =UITableViewCellSelectionStyleNone;
+    
     if (indexPath.section == 0) {
-        cell.nameLabel.text = @"查找设备";
-        cell.isConnection.text = self.strings;
+        cell.nameLabel.text = self.strings;
         cell.isConnection.hidden = YES;
-        cell.accessoryView = self.activeView;
+        cell.accessoryView = self.switchs;
+
     }else
     {
         cell.nameLabel.text = [self.peripheralArray objectAtIndex:indexPath.row];
-        cell.isConnection.text = @"未连接";
+        cell.isConnection.text = NSLocalizedString(@"Ununited", nil);
     }
     
     return cell;
@@ -264,25 +310,18 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == 0) {
-        //活动指示器
-        [self.activeView startAnimating];
-        //扫描外设
-        [self scanForPeripherals];
-        //打开定时器
-        [self.connectTimer fire];
-        //self.strings = @"正在查找";
-        [tableView reloadData];
-        
-        VCLog(@"000");
-        
+        VCLog(@"select 0,do nothing");
     }else
     {
         //连接设备
-        [self.manager connectPeripheral:[self.peripheralArray objectAtIndex:indexPath.row] options:nil];
-        
+        //[self.manager connectPeripheral:[self.peripheralArray objectAtIndex:indexPath.row] options:nil];
         
     }
+    
+    
+    
 }
+
 
 //返回表头
 -(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -290,7 +329,7 @@
     if (section == 0) {
         return @"";
     }
-    return @"我的设备";
+    return NSLocalizedString(@"My_device", nil);
 }
 
 //定时器
@@ -300,9 +339,11 @@
     if (self.times<=0) {
         [self.manager stopScan];//停止扫描
         [self.activeView stopAnimating];
-        self.strings = @"";
+        self.strings = NSLocalizedString(@"Search_device", nil);
+        [self.switchs setOn:NO];
     }
     
+    [self.tableView reloadData];
 }
 
 - (void)didReceiveMemoryWarning {

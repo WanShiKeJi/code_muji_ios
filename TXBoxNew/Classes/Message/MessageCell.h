@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface MessageCell : UITableViewCell
-@property (weak, nonatomic) IBOutlet UILabel *contactsLabel;
-@property (weak, nonatomic) IBOutlet UILabel *contentsLabel;
-@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contactsLabel;    //姓名
+@property (weak, nonatomic) IBOutlet UILabel *contentsLabel;    //内容
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;        //日期
 
 @end

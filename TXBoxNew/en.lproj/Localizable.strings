@@ -1,0 +1,65 @@
+/* 
+  Localizable.strings
+  TXBoxNew
+
+  Created by Naron on 15/5/13.
+  Copyright (c) 2015年 playtime. All rights reserved.
+*/
+
+/*
+ *  取值
+ *  NSLocalizedString(@"label",  nil);
+ *  NSLocalizedStringFromTable(@"label", @"InfoPlist", nil);
+ */
+
+CFBundleDisplayName ="TXBoxNew";//这个是应用名称
+
+"Phone" = "Phone";//电话
+"Message" = "Message";//
+"Contacts" = "Contacts";
+"Discovery" = "Discovery";
+
+"Communication_Corp" = "cc";//Communication Corp
+"Unicom" = "unicom";//联通
+"Telecom" = "telecom";//电信
+
+"Send" = "send";//发送
+"Configure" = "Configure";//配置
+"Other" = "other";//其它
+"Setting" = "setting";//设置
+"Peripheral" = "Peripheral";//外设
+"Version" = "Version";//版本
+"Peripheral_Version" = "Peripheral Version";//设备固件版本
+"Vibrate" = "Vibrate";//振动
+
+"E-mail" = "E-mail";//邮箱
+"MuJi-Number" = "MuJi-Number";//拇机号码
+"Connected" = "connected";//已连接
+"Ununited" = "ununited";//未连接
+"Search_device" = "Search Device";//查找设备
+"Searching" = "Searching...";//正在查找
+"My_device" = "My Device";//我的设备
+"Device" = "Device";//设备
+
+"Sure" = "Sure";//确定
+"Yes" = "YES";  //是
+"No" = "NO";    //否
+"Cancel" = "Cancel";//取消
+"Alerts" = "Alerts";//提示
+"Call_Forwarding" = "Call forwarding to";//呼转到...
+"Cancel_Call_Forwarding" = "Cancel call forwarding to";//取消呼转到...
+"The_Call_Forwarding_was_get_info" = "We need to do to get your call forwarding information!please fill out this card";//获取呼转信息
+"Please_enter_the_correct_info" = "Please enter the correct e-mail and MuJi-Number!";//输入正确的邮箱和号码
+
+"Please_enter_the_correct_number" = "Please enter the correct number!";//输入正确的号码
+
+"Add_Ctontacts" = "Add Ctontacts";//添加联系人
+"Delete" = "delete";//删除
+"Please_enter_number_or_letter_of_fuzzy_search" = "Please enter number or letter search";//输入数字或拼音模糊搜索
+"Calling" = "Calling...";//正在呼叫
+"Call_Over" = "calling over";//结束通话
+"UnSetting" = "unsetting";//未设置
+"New_Msg" = "New Message";//新信息
+"New_Person" = "New Person";//新增联系人
+"Unknow" = "Unknow";//"未知";
+"Configure_E-mail_MuJi-Number"= "Configure e-mail and MuJi-Number";//配置邮箱和拇机号码

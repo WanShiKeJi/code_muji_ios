@@ -14,9 +14,7 @@
 - (IBAction)contactAdd:(UIButton *)sender;
 
 @property (weak, nonatomic) IBOutlet UITextField *hisNumber;
-
 @property (weak, nonatomic) IBOutlet UILabel *hisname;
-
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 - (IBAction)sendMeg:(UIButton *)sender;
 
@@ -31,11 +29,12 @@
     [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.title = NSLocalizedString(@"New_Msg", nil);
     //
     self.hisNumber.delegate =self;
     self.hisNumber.contentMode = UIViewContentModeTopLeft;
@@ -75,7 +74,8 @@
     if (textView.text.length>20) {
         UIFont *font = [UIFont systemFontOfSize:14];
         
-        CGSize size = [self.hisNumber.text sizeWithFont:font constrainedToSize:CGSizeMake(DEVICE_WIDTH*.7, 100) lineBreakMode:UILineBreakModeWordWrap];
+        CGSize size = [self.hisNumber.text boundingRectWithSize:CGSizeMake(DEVICE_WIDTH*.7, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:font} context:nil].size;
+        
         
         [self.hisNumber setFrame:CGRectMake(30, 0, DEVICE_WIDTH*.6, size.height+20)];
     }

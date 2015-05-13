@@ -10,6 +10,7 @@
 
 @interface BLEDeviceCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityView;
 @property (weak, nonatomic) IBOutlet UILabel *isConnection;
 
 @end

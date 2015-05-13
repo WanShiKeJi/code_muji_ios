@@ -1,29 +1,10 @@
 //
 //  HPTextView.m
+//  TXBoxNew
 //
-//  Created by Hans Pinckaers on 29-06-10.
+//  Created by Naron on 15/4/21.
+//  Copyright (c) 2015年 playtime. All rights reserved.
 //
-//	MIT License
-//
-//	Copyright (c) 2011 Hans Pinckaers
-//
-//	Permission is hereby granted, free of charge, to any person obtaining a copy
-//	of this software and associated documentation files (the "Software"), to deal
-//	in the Software without restriction, including without limitation the rights
-//	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//	copies of the Software, and to permit persons to whom the Software is
-//	furnished to do so, subject to the following conditions:
-//
-//	The above copyright notice and this permission notice shall be included in
-//	all copies or substantial portions of the Software.
-//
-//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-//	THE SOFTWARE.
 
 #import "HPGrowingTextView.h"
 #import "HPTextViewInternal.h"
@@ -442,6 +423,7 @@
 -(void)setFont:(UIFont *)afont
 {
 	internalTextView.font= afont;
+    //internalTextView.font= [UIFont systemFontOfSize:14];
 	
 	[self setMaxNumberOfLines:maxNumberOfLines];
 	[self setMinNumberOfLines:minNumberOfLines];
@@ -456,7 +438,8 @@
 
 -(void)setTextColor:(UIColor *)color
 {
-	internalTextView.textColor = color;
+//	internalTextView.textColor = color;
+    internalTextView.textColor = [UIColor greenColor];;
 }
 
 -(UIColor*)textColor{
@@ -468,7 +451,8 @@
 -(void)setBackgroundColor:(UIColor *)backgroundColor
 {
   [super setBackgroundColor:backgroundColor];
-	internalTextView.backgroundColor = backgroundColor;
+	//internalTextView.backgroundColor = backgroundColor;
+    internalTextView.backgroundColor = [UIColor whiteColor];
 }
 
 -(UIColor*)backgroundColor
@@ -476,7 +460,7 @@
   return internalTextView.backgroundColor;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////对齐方式///////////////////////////////////////////////////
 
 -(void)setTextAlignment:(NSTextAlignment)aligment
 {
@@ -512,11 +496,11 @@
     return internalTextView.scrollEnabled;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////是否可编辑///////////////////////////////////////////////////
 
 -(void)setEditable:(BOOL)beditable
 {
-	internalTextView.editable = beditable;
+	internalTextView.editable = NO;
 }
 
 -(BOOL)isEditable
@@ -524,7 +508,7 @@
 	return internalTextView.editable;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////return key Type////////////////////////////////////////////////
 
 -(void)setReturnKeyType:(UIReturnKeyType)keyType
 {
@@ -536,7 +520,7 @@
 	return internalTextView.returnKeyType;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////键盘type/////////////////////////////////////////////
 
 - (void)setKeyboardType:(UIKeyboardType)keyType
 {

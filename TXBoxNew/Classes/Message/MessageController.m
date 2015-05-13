@@ -11,6 +11,7 @@
 #import "MsgDatas.h"
 #import "MsgDetailController.h"
 
+
 @interface MessageController ()
 
 @property (strong,nonatomic) NSMutableArray *array;
@@ -27,13 +28,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
+    self.title = NSLocalizedString(@"Message", nil);
     self.array = [NSMutableArray arrayWithObjects:@"1",nil];
     
 }
@@ -46,16 +41,16 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    // Return the number of sections.
+    //sections
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    // Return the number of rows in the section.
+    //rows
     return self.array.count;
 }
 
-
+// tableViewcell
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     MessageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"msgCells" forIndexPath:indexPath];
@@ -65,9 +60,10 @@
     cell.dateLabel.text = @"2015/04/21 10:59";
     // Configure the cell...
     
+  
     return cell;
 }
-
+//选中某行
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     MsgDatas *data = [[MsgDatas alloc] init];
@@ -93,7 +89,7 @@
 
 
 
-// Override to support editing the table view.
+// 允许编辑
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -111,31 +107,9 @@
 
 -(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return @"删除";
+    return NSLocalizedString(@"Delete", nil);
 }
 
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-}
-*/
 
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

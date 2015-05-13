@@ -28,7 +28,7 @@
         [self addSubview:self.tableView];
         
         
-        self.tableViewIndex = [[BATableViewIndex alloc] initWithFrame:(CGRect){300,0,20,frame.size.height}];
+        self.tableViewIndex = [[BATableViewIndex alloc] initWithFrame:(CGRect){DEVICE_WIDTH-20,0,20,frame.size.height}];
         [self addSubview:self.tableViewIndex];
         
         self.flotageLabel = [[UILabel alloc] initWithFrame:(CGRect){(self.bounds.size.width - 64 ) / 2,(self.bounds.size.height - 64) / 2,64,64}];

@@ -17,7 +17,7 @@
 #import "MsgDetailController.h"
 #import "MsgDatas.h"
 
-@interface ContactersController ()<UISearchBarDelegate,UISearchResultsUpdating,BATableViewDelegate,ABNewPersonViewControllerDelegate>
+@interface ContactersController ()<UISearchBarDelegate,UISearchResultsUpdating,BATableViewDelegate,ABNewPersonViewControllerDelegate,UISearchControllerDelegate>
 {
     NSMutableDictionary *sectionDic;    //sections数据
     NSMutableDictionary *phoneDic;      //同一个人的手机号码dic，
@@ -27,23 +27,20 @@
     MsgDatas *msgdata;
 }
 
-@property (strong,nonatomic) UISearchBar *conSearchBar;    //搜索框
 @property (strong,nonatomic) UISearchController *searchController;  //实现disPlaySearchBar
+@property (strong,nonatomic) UITableViewController *searchVC;
 @property (strong,nonatomic) NSMutableArray *searchsArray;          //搜索后的结果数组
 @property (retain,nonatomic) NSArray *dataList;                     //存放数据模型数组
 @property (strong,nonatomic) NSIndexPath *selectedIndexPath;        //被选中
-
-@property (nonatomic, strong) BATableView *contactTableView;
-
+@property (nonatomic, strong) BATableView *contactTableView;        //tableview
 
 @end
 
 @implementation ContactersController
 
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.title = NSLocalizedString(@"Contacts", nil);
     
     sectionDic= [[NSMutableDictionary alloc] init];
     phoneDic=[[NSMutableDictionary alloc] init];
@@ -54,12 +51,6 @@
     
     //分割线为none
     [self.contactTableView.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-    
-    //指定其协议
-    self.conSearchBar.placeholder = @"搜索";
-    //self.tableView.tableHeaderView = self.conSearchBar;
-    //self.tableView.sectionIndexBackgroundColor = [UIColor clearColor];//设置索引的背景颜色
-    self.conSearchBar.delegate = self;
     
     self.selectedIndexPath = nil;
     
@@ -82,9 +73,6 @@
     //通知显示tabBar
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kShowCusotomTabBar object:self]];
     
-    
-    
-    
 }
 
 // 创建tableView
@@ -93,23 +81,43 @@
     self.contactTableView.delegate = self;
     [self.view addSubview:self.contactTableView];
 }
-
+//searchController
 -(void) initSearchController
 {
     //需要初始化一下UISearchController:
+    self.searchVC = // 创建出搜索使用的表示图控制器
+    self.searchVC = [[UITableViewController alloc] initWithStyle:UITableViewStylePlain];
+    self.searchVC.tableView.dataSource = self;
+    self.searchVC.tableView.delegate = self;
     
-    _searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
-    
-    _searchController.searchResultsUpdater = self;
-    
-    _searchController.dimsBackgroundDuringPresentation = YES;//搜索时背景遮罩
-    
-    _searchController.hidesNavigationBarDuringPresentation = YES;//搜索时隐藏导航栏
-    
-    _searchController.searchBar.frame = CGRectMake(self.searchController.searchBar.frame.origin.x, self.searchController.searchBar.frame.origin.y, self.searchController.searchBar.frame.size.width, 44.0);
-    
+    self.searchController = [[UISearchController alloc] initWithSearchResultsController:self.searchVC];
+    self.searchController.searchResultsUpdater = self;
+    self.searchController.delegate = self;
+    self.searchController.searchBar.frame = CGRectMake(0, 64, DEVICE_WIDTH, 44.0);
     self.contactTableView.tableView.tableHeaderView = self.searchController.searchBar;
-    [self.view addSubview:self.searchController.view];
+    self.definesPresentationContext = YES;
+    [self changedSearchBarCancel];
+    
+}
+
+//将SearchBar上"Cancel"按钮改为”取消“
+-(void)changedSearchBarCancel
+{
+    
+    UIButton *cancelButton;
+    UIView *topView = self.searchController.searchBar.subviews[0];
+    for (UIView *subView in topView.subviews) {
+        
+        if ([subView isKindOfClass:NSClassFromString(@"UINavigationButton")]) {
+            cancelButton = (UIButton *)subView;
+            //设置文本和颜色
+            [cancelButton setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
+            [cancelButton setTitleColor:RGBACOLOR(0, 103, 255, 1) forState:UIControlStateNormal];//蓝色
+            cancelButton.titleLabel.font = [UIFont fontWithName:@"Heiti SC" size:15];
+
+        }
+    }
+    
 }
 
 
@@ -186,7 +194,7 @@
             name = [[NSString alloc] initWithFormat:@"%@",firstName];
         }else
         {
-            name = [[NSString alloc] initWithFormat:@"未知名字"];
+            name = [[NSString alloc] initWithFormat:NSLocalizedString(@"Unknow", nil)];
         }
         
         
@@ -357,6 +365,8 @@
         //把searchArray根据每行显示
         Records *record = self.searchsArray[indexPath.row];
         cell.nameLabel.text = record.personName;
+        cell.numberLabel.text = record.personTel;
+        [cell.msgsBtn addTarget:self action:@selector(msgsBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     }
     else{
         //原生表
@@ -393,7 +403,7 @@
     msgDetail.datailDatas =msgdata;
     [self.navigationController pushViewController:msgDetail animated:YES];
     
-    VCLog(@"msgsclick");
+    //VCLog(@"msgsclick");
 }
 
 //点击单元格
@@ -411,6 +421,13 @@
     
     [tableView beginUpdates];
     [tableView endUpdates];
+    
+    if (self.searchController.active) {
+        //关闭键盘
+        [self.searchController.searchBar resignFirstResponder];
+        
+    }
+   
     
 }
 
@@ -443,11 +460,13 @@
     //VCLog(@"arrayM-0:%@",[[arrayM objectAtIndex:0] valueForKey:@"personTel"]);
 }
 
+
 #pragma mark -- searchController 协议方法
 
 //返回搜索结果
 -(void) updateSearchResultsForSearchController:(UISearchController *)searchController
 {
+    
     NSString *searchString = [self.searchController.searchBar text];
     
     //NSPredicate *preicate = [NSPredicate predicateWithFormat:@"(SELF.personName CONTAINS[c] %@) OR (SELF.personTel contains [c] %@)", searchString];
@@ -461,15 +480,16 @@
     self.searchsArray= [NSMutableArray arrayWithArray:[_dataList filteredArrayUsingPredicate:preicate]];
     VCLog(@"searchArray :%@",self.searchsArray);
     VCLog(@"preicate :%@",preicate);
-    //刷新表格
     
+    //刷新表格
+    [self.searchVC.tableView reloadData];
     [self.contactTableView reloadData];
 }
 
 /*改变删除按钮的text*/
 -(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return @"删除";
+    return NSLocalizedString(@"Delete", nil);
 }
 
 // 是否可以编辑

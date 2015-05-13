@@ -11,4 +11,13 @@
 @implementation MsgDatas
 
 @synthesize hisHome,hisName,hisNumber;
+
+- (NSString *)description
+
+{
+    return [NSString stringWithFormat:@"name:%@,number: %@,home: %@", hisName, hisNumber, hisHome];
+    
+}
+
+
 @end

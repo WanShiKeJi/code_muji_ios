@@ -128,13 +128,13 @@
         || ([regextestcu evaluateWithObject:mobileNum] == YES))
     {
         if([regextestcm evaluateWithObject:mobileNum] == YES) {
-            str = @"移动";
+            str = NSLocalizedString(@"Communication_Corp", nil);
             VCLog(@"China Mobile");
         } else if([regextestct evaluateWithObject:mobileNum] == YES) {
-            str =  @"电信";
+            str =  NSLocalizedString(@"Unicom", nil);
             VCLog(@"China Telecom");
         } else if ([regextestcu evaluateWithObject:mobileNum] == YES) {
-            str =  @"联通";
+            str =  NSLocalizedString(@"Telecom", nil);
             VCLog(@"China Unicom");
         } else {
             str  = OtherNumber;

@@ -38,7 +38,7 @@
     [super viewDidLoad];
     callAct = [[TXCallAction alloc] init];
     defaults = [NSUserDefaults standardUserDefaults];
-    self.timeLength.text = @"正在呼叫...";
+    self.timeLength.text = NSLocalizedString(@"Calling", nil);
     
     times = 0;
     
@@ -52,6 +52,7 @@
     }
 }
 
+//获取连接(打电话)状态
 -(void) getConnectState
 {
     
@@ -142,7 +143,7 @@
     NSUserDefaults *accountDefaults = [NSUserDefaults standardUserDefaults];
     [accountDefaults setValue:self.timeLength.text forKey:@"timeLength"];
     
-    self.timeLength.text = @"结束通话";
+    self.timeLength.text = NSLocalizedString(@"Call_Over", nil);
     [UIView beginAnimations:@"" context:@""];
     [UIView setAnimationDuration:.9];
     [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];

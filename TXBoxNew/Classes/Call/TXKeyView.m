@@ -81,7 +81,7 @@
     self.textsearch=[[UISearchBar alloc]init];
     self.textsearch.contentMode = UIViewContentModeCenter;
     self.textsearch.frame=CGRectMake(5, 5, DEVICE_WIDTH*.8, 44);
-    [self.textsearch setPlaceholder:@"可输入数字或拼音模糊搜索"];
+    [self.textsearch setPlaceholder:NSLocalizedString(@"Please_enter_number_or_letter_of_fuzzy_search", nil)];
     self.textsearch.returnKeyType = UIReturnKeyDefault;
     //[textsearch becomeFirstResponder];
     [self layoutSubviews];
@@ -200,63 +200,5 @@
     return NO;
 }
 
--(void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-{
-    //匹配
-    
-    //创建一个通知
-    /*
-     *  (NSString *)name;   // 通知的名称
-     *  (id)object;         // 通知发布者
-     *  (NSDictionary *)userInfo; // 一些额外的信息(通知发布者传递给通知接收者的信息内容)
-     */
-    
-    //NSNotification *notifi = [NSNotification notificationWithName:ktextChangeNotification object:self];
-    
-    //[[NSNotificationCenter defaultCenter] postNotificationName:ktextChangeNotification object:nil userInfo:nil];
-    
-    //[[NSNotificationCenter defaultCenter] postNotificationName:ktextChangeNotification object:self userInfo:nil];
-    
-    
-    
 
-}
-
-#pragma mark 对searchbar的修改
--(void) abc
-{
-    /*
-     for (UIView *view in textsearch.subviews) {
-     // for before iOS7.0
-     if ([view isKindOfClass:NSClassFromString(@"UISearchBarBackground")]) {
-     [view removeFromSuperview];
-     break;
-     }
-     // for later iOS7.0(include)
-     if ([view isKindOfClass:NSClassFromString(@"UIView")] && view.subviews.count > 0) {
-     [[view.subviews objectAtIndex:0] removeFromSuperview];
-     break;
-     }
-     }
-     */
-    
-    /*
-     //删除searchbar的背景
-     1）
-     [textsearch setImage:nil forSearchBarIcon:UISearchBarIconClear state:UIControlStateNormal];
-     2）
-     for (UIView *subview in textsearch.subviews)
-     {
-     if ([subview isKindOfClass:NSClassFromString(@"UISearchBarBackground")])
-     {
-     [subview removeFromSuperview];
-     
-     }
-     }
-     
-     3）
-     //[[textsearch.subviews objectAtIndex:0]removeFromSuperview];
-     */
-
-}
 @end

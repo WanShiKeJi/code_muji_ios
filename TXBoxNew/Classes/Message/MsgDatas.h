@@ -14,4 +14,6 @@
 @property (strong,nonatomic) NSString *hisNumber;//号码
 @property (strong,nonatomic) NSString *hisHome;//归属地
 
+@property (strong,nonatomic) NSArray *array;
+
 @end

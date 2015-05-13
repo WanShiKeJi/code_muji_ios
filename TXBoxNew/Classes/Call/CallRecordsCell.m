@@ -25,28 +25,20 @@
 - (IBAction)callBtn:(UIButton *)sender {
     //把姓名号码传过去
     NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:self.hisName.text,@"hisName",self.hisNumber.text,@"hisNumber", nil];
-    
+    //点击callBtn
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kCallingBtnClick object:self userInfo:dict]];
     
-    
-    
-    //[self.celldelegate initCallOutView];
-    //VCLog(@"call");
 }
 
 - (IBAction)mesBtn:(UIButton *)sender {
     
-    //NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:self.hisName.text,@"hisName",self.hisNumber.text,@"hisNumber",self.hisHome.text,@"hisHome", nil];
     
-    //kKeyboardAndTabViewHide
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
     
     //VCLog(@"msg");
 }
 - (IBAction)personBtn:(UIButton *)sender {
-        
     
-    
+    //显示add联系人界面
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kShowAddContacts object:self]];
     //VCLog(@"person");
 }

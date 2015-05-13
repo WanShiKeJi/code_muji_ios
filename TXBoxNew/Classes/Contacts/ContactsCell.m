@@ -20,7 +20,7 @@
 - (IBAction)msgBtn:(UIButton *)sender
 {
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
-    
+    VCLog(@"msg");
 }
 #pragma mark 拨打电话
 - (IBAction)callBtn:(UIButton *)sender
@@ -29,6 +29,9 @@
     NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:self.nameLabel.text,@"hisName",self.numberLabel.text,@"hisNumber", nil];
     
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kCallingBtnClick object:self userInfo:dict]];
+    
+    //关闭键盘
+    
     
 }
 #pragma mark 编辑

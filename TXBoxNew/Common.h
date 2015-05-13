@@ -15,7 +15,7 @@
 #define kKeyboardAndTabViewHide @"keyboardAndTabBarHide"//自定键盘、callBtn,tabbar隐藏
 #define kHideCusotomTabBar @"hideCustomTabBar"//隐藏自定tabbar
 #define kShowCusotomTabBar @"showCustomTabBar"//显示自定tabbar
-#define kShowAddContacts @"showAddContacts" //显示add联系人
+#define kShowAddContacts @"showAddContacts" //显示add联系人界面
 #define kShowValueToMsgDetail @"showValue"
 
 //4.键盘高宽
@@ -61,7 +61,7 @@
 #define TelNumAddress @"http://virtual.paipai.com/extinfo/GetMobileProductInfo?mobile=%@&amount=10000&callname=getPhoneNumInfoExtCallback"
 
 //17.其它
-#define OtherNumber @"其它"
+#define OtherNumber NSLocalizedString(@"Other", nil)
 
 //18.状态栏高度 默认20
 #define StatusBarHeight [[UIApplication sharedApplication] statusBarFrame].size.height
@@ -71,6 +71,11 @@
 //导航栏高度 默认44
 #define NaviBarHeight self.navigationController.navigationBar.frame.size.height
 
-
-
+//邮箱和拇机号码
+#define email_number @"e_mail_number"
+#define muji_bind_number @"muji_bind_number"
+//呼转状态
+#define call_divert @"call_divert"
+//window窗口
+#define WINDOW  [[UIApplication sharedApplication]keyWindow]
 

@@ -207,7 +207,7 @@
 {
     //VCLog(@"alert");
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:@"输入正确的号码" delegate:self cancelButtonTitle:@"cancel" otherButtonTitles:@"ok", nil];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Alerts", nil) message:NSLocalizedString(@"Please_enter_the_correct_number", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"No", nil) otherButtonTitles:NSLocalizedString(@"Yes", nil), nil];
     alert.delegate = self;
     [alert show];
     
@@ -282,7 +282,7 @@
     [UIView beginAnimations:@"" context:@""];
     [UIView setAnimationDuration:.9];
     calling.view.alpha = 1.f;
-    
+    //获取notification传值
     calling.nameLabel.text = [[notification userInfo] objectForKey:@"hisName"];
     calling.numberLabel.text = [[notification userInfo] objectForKey:@"hisNumber"];
     
@@ -311,7 +311,7 @@
     [super viewWillDisappear:animated];
     
     //移除通知
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ktextChangeNotify object:nil];
+    //[[NSNotificationCenter defaultCenter] removeObserver:self name:ktextChangeNotify object:nil];
     
 }
 

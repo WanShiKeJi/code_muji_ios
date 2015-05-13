@@ -106,26 +106,39 @@
     return isString;
 }
 
--(NSString *)foradstr
-{
-    NSString *string =[[NSString alloc] init];
-    
-    for (int i=0; i<string.length; i++) {
-        NSRange range ={i,i+1};
-        if ([[string substringWithRange:range] isEqualToString:@"("] ||[[string substringWithRange:range] isEqualToString:@")"] || [[string substringWithRange:range] isEqualToString:@"-"]||[[string substringWithRange:range] isEqualToString:@" "]) {
-            
-            string =[string stringByReplacingOccurrencesOfString:[string substringWithRange:range] withString:@""];
-        }
-    }
-    
-    return string;
-}
-
-//给string 计算文本size
+#pragma mark --给string 计算文本size
 - (CGSize)sizeWithFont:(UIFont *)font maxSize:(CGSize)maxSize
 {  NSDictionary *attrs = @{NSFontAttributeName: font};
     CGSize size =[self boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
     return size;
+}
+
+
+#pragma mark --邮箱验证
+-(BOOL)isValidateEmail:(NSString *)email
+{
+    NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
+    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+    return [emailTest evaluateWithObject:email];
+}
+
+#pragma mark --手机号码验证
+-(BOOL) isValidateMobile:(NSString *)mobile
+{
+    //手机号以13， 15，18开头，八个 \d 数字字符
+    NSString *phoneRegex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
+    NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",phoneRegex];
+    //    NSLog(@"phoneTest is %@",phoneTest);
+    return [phoneTest evaluateWithObject:mobile];
+}
+
+#pragma mark --车牌号验证
+-(BOOL) validateCarNo:(NSString* )carNo;
+{
+    NSString *carRegex = @"^[A-Za-z]{1}[A-Za-z_0-9]{5}$";
+    NSPredicate *carTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",carRegex];
+    NSLog(@"carTest is %@",carTest);
+    return [carTest evaluateWithObject:carNo];
 }
 
 

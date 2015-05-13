@@ -9,6 +9,12 @@
 #import <UIKit/UIKit.h>
 
 @interface DiscoverController : UITableViewController
+
+
+
+
+
+@property (weak, nonatomic) IBOutlet UILabel *muji_number;
 @property (weak, nonatomic) IBOutlet UILabel *callInVibrate;//来电时振动
 @property (weak, nonatomic) IBOutlet UILabel *connectVibrate;//接通时振动
 @property (weak, nonatomic) IBOutlet UISwitch *callInSwitch;//

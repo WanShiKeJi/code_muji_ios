@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
-
+{
+    NSUserDefaults *usDefaults;
+}
 @property (strong, nonatomic) UIWindow *window;
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundUpdateTask;
 
