@@ -21,7 +21,6 @@
 @interface CustomTabBarView : UIView
 {
     CustomTabBarBtn *previousBtn;
-    //TXCallAction *callAct;
     BOOL flag;
 }
 

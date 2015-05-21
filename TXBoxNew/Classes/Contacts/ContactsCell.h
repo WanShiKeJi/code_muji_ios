@@ -13,10 +13,10 @@
 @property (weak  ,nonatomic) IBOutlet UILabel *numberLabel;
 @property (strong,nonatomic) UIImageView *imgView;
 @property (weak, nonatomic) IBOutlet UIButton *msgsBtn;
+@property (weak, nonatomic) IBOutlet UIButton *editBtn;
 
 
 - (IBAction)callBtn:(UIButton *)sender;
-- (IBAction)msgBtn:(UIButton *)sender;
-- (IBAction)editBtn:(UIButton *)sender;
+
 
 @end

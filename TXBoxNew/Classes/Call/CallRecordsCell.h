@@ -20,11 +20,12 @@
 @property (weak, nonatomic) IBOutlet UILabel *hisHome;//对方归属地
 @property (weak, nonatomic) IBOutlet UILabel *hisOperator;//对方的归属运营商
 
+@property (weak, nonatomic) IBOutlet UIButton *CallButton;
 @property (weak, nonatomic) IBOutlet UIButton *MsgButton;
+@property (weak, nonatomic) IBOutlet UIButton *PersonButton;
 
 - (IBAction)callBtn:(UIButton *)sender;
-- (IBAction)mesBtn:(UIButton *)sender;
-- (IBAction)personBtn:(UIButton *)sender;
+
 
 
 @end

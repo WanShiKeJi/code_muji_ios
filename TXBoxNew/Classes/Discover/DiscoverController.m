@@ -30,8 +30,32 @@
     [super viewWillAppear:animated];
     
     [self.tableView reloadData];
+    [self registerForKeyboardNotifications];
 }
 
+- (void)registerForKeyboardNotifications
+{
+    //使用NSNotificationCenter 键盘出现时
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShow:) name:UIKeyboardDidShowNotification object:nil];
+    
+}
+//显示
+- (void)keyboardWasShow:(NSNotification*)aNotification
+{
+    NSDictionary* info = [aNotification userInfo];
+    /*
+     NSNumber *duration = [info objectForKey:UIKeyboardAnimationDurationUserInfoKey];
+     VCLog(@"duration:%@",duration);
+     CGRect beginRect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+     */
+    CGRect endRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    
+    VCLog(@"·······%f",endRect.size.height);
+    [UIView beginAnimations:@"" context:nil];
+    popview.frame =  CGRectMake((DEVICE_WIDTH-PopViewWidth)/2, DEVICE_HEIGHT-PopViewHeight-endRect.size.height, PopViewWidth, PopViewHeight);
+    [UIView setAnimationDuration:.25];
+    [UIView commitAnimations];
+}
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -44,16 +68,14 @@
     self.title = NSLocalizedString(@"Discovery", nil);
     
     defaults = [NSUserDefaults standardUserDefaults];
-    if ([[defaults valueForKey:muji_bind_number] length] == 0) {
-        self.muji_number.text =NSLocalizedString(@"UnSetting", nil);
-    }
+    
     
     //
     _alertView = [[UIAlertView alloc] initWithTitle:nil message:NSLocalizedString(@"The_Call_Forwarding_was_get_info", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"Sure", nil) otherButtonTitles:nil, nil];
     _alertView.delegate = self;
     
     titleArray = [NSArray arrayWithObjects:NSLocalizedString(@"Configure", nil),NSLocalizedString(@"Vibrate", nil),NSLocalizedString(@"Version", nil),NSLocalizedString(@"My_device", nil), nil];
-    labelArray = [NSArray arrayWithObjects:@[NSLocalizedString(@"Configure_E-mail_MuJi-Number", nil)],@[@"来电时APP振动",@"123156"],@[@"APP版本",@"设备版本"],@[NSLocalizedString(@"Setting", nil)], nil];
+    labelArray = [NSArray arrayWithObjects:@[NSLocalizedString(@"Configure_E-mail_MuJi-Number", nil)],@[NSLocalizedString(@"Call_in_and_app_vibrate", nil),@"123156"],@[NSLocalizedString(@"APP_Version", nil),NSLocalizedString(@"Device_version", nil)],@[NSLocalizedString(@"Setting", nil)], nil];
 
 }
 
@@ -86,7 +108,11 @@
     cell.buttons.hidden = YES;
     if (indexPath.section == 0) {
         cell.buttons.hidden = NO;
-        [cell.buttons setTitle:[defaults valueForKey:muji_bind_number] forState:UIControlStateNormal];
+        if ([[defaults valueForKey:muji_bind_number] length] == 0) {
+            [cell.buttons setTitle:NSLocalizedString(@"UnSetting", nil) forState:UIControlStateNormal];//
+        }else{
+            [cell.buttons setTitle:[defaults valueForKey:muji_bind_number] forState:UIControlStateNormal];
+        }
     }
     
     
@@ -99,6 +125,8 @@
     if (indexPath.section == 0) {
         if ([[defaults valueForKey:muji_bind_number] length]<=0) {
            [self addShadeAndAlertView];
+        }else if ([[defaults valueForKey:muji_bind_number] length] !=3){
+            VCLog(@"update?");
         }
     }
     
@@ -127,16 +155,27 @@
     shadeView =[[UIView alloc] initWithFrame:self.view.window.bounds];
     shadeView.backgroundColor = [UIColor grayColor];//self.view.window.bounds
     shadeView.alpha = .5;
+    [self.view.window addSubview:shadeView];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(shadeViewTap:)];
+    tap.numberOfTapsRequired = 1;
+    [shadeView addGestureRecognizer:tap];
     
     //pop
-    popview = [[PopView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-200)/2, (DEVICE_HEIGHT-170)/2-50, 200, 170)];
+    popview = [[PopView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-PopViewWidth)/2, DEVICE_HEIGHT-PopViewHeight-216, PopViewWidth, PopViewHeight)];
     popview.delegate = self;
     [popview initWithTitle:NSLocalizedString(@"The_Call_Forwarding_was_get_info", nil) firstMsg:NSLocalizedString(@"E-mail", nil) secondMsg:NSLocalizedString(@"MuJi-Number", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:NSLocalizedString(@"Sure", nil)];
     
-    [self.view.window addSubview:shadeView];
     [self.view.window addSubview:popview];
 }
 
+-(void)shadeViewTap:(UIGestureRecognizer *)recongnizer
+{
+    VCLog(@"-------tap");
+    
+    [shadeView removeFromSuperview];
+    [popview removeFromSuperview];
+}
 #pragma mark -- popview Delegate
 -(void)resaultsButtonClick:(UIButton *)button firstField:(UITextField *)ffield secondField:(UITextField *)sfield
 {
@@ -162,7 +201,7 @@
             VCLog(@"save-->email:%@,number:%@",email,number);
             [shadeView removeFromSuperview];
             [popview removeFromSuperview];
-            
+            [self.tableView reloadData];
         }
     }
 
@@ -173,7 +212,7 @@
 {
     [super viewWillDisappear:animated];
     VCLog(@"will disappear");
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
+    //[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
 }
 
 @end

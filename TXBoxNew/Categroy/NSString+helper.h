@@ -40,7 +40,6 @@
 -(NSString *) iPhoneStandardededFormat;
 -(NSString *) iPhoneStandardedFormat;
 
--(NSString *)foradstr;
 
 #pragma mark --格式化，如“123-4567-8910”
 -(NSString *)insertStr;

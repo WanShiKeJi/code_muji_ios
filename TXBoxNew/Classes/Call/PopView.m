@@ -90,7 +90,7 @@
             [button setTitle:cancelTitle forState:UIControlStateNormal];
         }
         
-        [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [button addTarget:self action:@selector(buttonClicks:) forControlEvents:UIControlEventTouchUpInside];
         [self.imgv addSubview:button];
     }
     
@@ -103,7 +103,7 @@
     [self addSubview:self.imgv];
 }
 
--(void)buttonClick:(UIButton *)btn 
+-(void)buttonClicks:(UIButton *)btn
 {
     
     if (btn.tag == 0) {

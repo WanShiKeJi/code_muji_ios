@@ -62,4 +62,8 @@ CFBundleDisplayName ="TXBoxNew";//这个是应用名称
 "New_Msg" = "New Message";//新信息
 "New_Person" = "New Person";//新增联系人
 "Unknow" = "Unknow";//"未知";
-"Configure_E-mail_MuJi-Number"= "Configure e-mail and MuJi-Number";//配置邮箱和拇机号码
+"Configure_E-mail_MuJi-Number"= "Configure MuJi-Number";//配置邮箱和拇机号码
+"Call_in_and_app_vibrate" = "Call in and app vibrate";
+"APP_Version"= "APP Version";
+"Device_version" = "Device version";
+

@@ -58,3 +58,8 @@ CFBundleDisplayName ="通信盒子";
 
 "Configure_E-mail_MuJi-Number"= "配置邮箱和拇机号码";//配置邮箱和拇机号码
 
+
+
+"Call_in_and_app_vibrate" = "来电时APP振动";
+"APP_Version"= "APP 版本";
+"Device_version" = "设备版本";

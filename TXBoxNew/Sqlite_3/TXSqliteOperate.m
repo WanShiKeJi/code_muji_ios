@@ -11,8 +11,6 @@
 @implementation TXSqliteOperate
 
 
-
-
 #pragma mark --打开数据库
 -(BOOL)openDatabase
 {
@@ -210,7 +208,146 @@
     
 }
 
-#pragma mark -- 删除表
+#pragma mark -- ////////////以下是短信//////////////////
+-(void)createMsgTable:(NSString *)tableName;{
+    if ([self openDatabase]) {
+        //sql语句AUTOINCREMENT
+        NSString *sql = [NSString stringWithFormat:@"create table if not exists %@(peopleId integer primary key AUTOINCREMENT,hisName text,hisNumber text,msgBeginTime text,msgContent text)",tableName];
+        
+        //执行sql语句
+        if (sqlite3_exec(dataBase, [sql UTF8String], NULL, NULL, &msg)==SQLITE_OK) {
+            VCLog(@"create table success !");
+        }else{
+            VCLog(@"create table error:%s",msg);
+            //清空错误信息
+            sqlite3_free(msg);
+        }
+        
+    }else {
+        VCLog(@"sqlite ...");
+    }
+    
+    //关闭数据库
+    sqlite3_close(dataBase);
+}
+-(void)addInfo:(TXMsgData *)data intoTable:(NSString *)table;
+{
+    if ([self openDatabase]) {
+        
+        //NSString *insertSql = [NSString stringWithFormat:@"insert into tels(tel_number) values(?)"];
+        NSString *insertSql = [NSString stringWithFormat:@"insert into %@(hisName ,hisNumber ,msgBeginTime ,msgContent  ) values(?,?,?,?)",table];
+        
+        if (sqlite3_prepare_v2(dataBase, [insertSql UTF8String], -1, &stmt, nil) == SQLITE_OK) {
+            VCLog(@"insert prepare ok");
+        }else{
+            VCLog(@"insert prepare error:%s",msg);
+            //清空错误信息
+            sqlite3_free(msg);
+        }
+        //sqlite3_bind_int(stmt,1, data.tel_id);
+        sqlite3_bind_text(stmt, 1, [data.hisName UTF8String], -1, NULL);
+        sqlite3_bind_text(stmt, 2, [data.hisNumber UTF8String], -1, NULL);
+        sqlite3_bind_text(stmt, 3, [data.msgBeginTime UTF8String], -1, NULL);
+        sqlite3_bind_text(stmt, 4, [data.msgContent UTF8String], -1, NULL);
+        
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            //清空错误信息
+            sqlite3_free(msg);
+            VCLog(@"insert success");
+            
+        }else
+        {
+            VCLog(@"insert msg:%s",msg);
+        }
+        
+        sqlite3_reset(stmt);
+        //关闭
+        sqlite3_close(dataBase);
+    }else{
+        VCLog(@"sqlite ...");
+    }
+    
 
+    
+}//查找所有记录
+-(NSMutableArray *)searchInfoFromMsg:(NSString *)table;{
+    mutArray=[[NSMutableArray alloc] init];
+    
+    if ([self openDatabase]) {
+        
+        NSString *selectSql = [NSString stringWithFormat:@"select *from %@",table];
+        
+        if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
+            VCLog(@"select prepare ok!");
+        }
+        //循环遍历，sqlite3_step处理一行结果
+        while (sqlite3_step(stmt)==SQLITE_ROW) {
+            
+            int tid=sqlite3_column_int(stmt, 0);
+            
+            NSString *name = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+            NSString *number=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
+            NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
+            NSString *content=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
+            
+            //VCLog(@"id = %d,date = %@",tid,date);
+            
+            TXMsgData *data=[[TXMsgData alloc] init];
+            data.peopleId = tid;
+            data.hisName=name;
+            data.hisNumber=number;
+            data.msgBeginTime=beginTime;
+            data.msgContent = content;
+            [mutArray addObject:data];//
+            
+        }
+        //删除预备语句
+        sqlite3_finalize(stmt);
+        //关闭
+        sqlite3_close(dataBase);
+        
+        VCLog(@" mutArr=%@",mutArray);
+        return mutArray;
+    }
+    
+    return nil;
+}
+//删除整个会话
+-(void)deleteConttentWithNumber:(NSString *)hisNumber formTable:(NSString *)table;{
+    if ([self openDatabase]) {
+        //*错误代码*//
+        NSString *deleteSql=[NSString stringWithFormat:@"delete from %@ where hisNumber=%@",table,hisNumber];
+        if (sqlite3_exec(dataBase, [deleteSql UTF8String], nil, nil, &msg)==SQLITE_OK) {
+            VCLog(@"delete number = %@ ok",hisNumber);
+        }else{
+            VCLog(@"error:%s",msg);
+            sqlite3_free(msg);
+        }
+        
+        sqlite3_close(dataBase);
+    }else{
+        VCLog(@"sqlite  。。。");
+    }
+
+}
+
+//删除单条信息
+-(void)deleteConttentWithTime:(NSString *)beginTime formTable:(NSString *)table;{
+    if ([self openDatabase]) {
+        
+        NSString *deleteSql=[NSString stringWithFormat:@"delete from %@ where msgBeginTime=%@",table,beginTime];
+        if (sqlite3_exec(dataBase, [deleteSql UTF8String], nil, nil, &msg)==SQLITE_OK) {
+            VCLog(@"delete beginTime = %@ ok",beginTime);
+        }else{
+            VCLog(@"error:%s",msg);
+            sqlite3_free(msg);
+        }
+        
+        sqlite3_close(dataBase);
+    }else{
+        VCLog(@"sqlite  。。。");
+    }
+
+}
 
 @end

@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>1DFA68F2-31B7-4B12-A2FA-7EEB2E98539D</string>
 	<key>IDESourceControlProjectName</key>
-	<string>TXBoxNew</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>664DA8FA2A7E1F170B0A54CFB5310C2F9604A78B</key>
 		<string>https://github.com/hy15816/code_muji_ios.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>TXBoxNew.xcodeproj</string>
+	<string>TXBoxNew.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>664DA8FA2A7E1F170B0A54CFB5310C2F9604A78B</key>

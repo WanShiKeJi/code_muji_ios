@@ -25,6 +25,8 @@
     NSTimer *timertimer; // 播放gif动画所使用的timer
     
 }
+- (IBAction)packUpClick:(UIButton *)sender;
+@property (weak, nonatomic) IBOutlet UIButton *packUp;
 @property (weak, nonatomic) IBOutlet UIView *gifView;
 @end
 
@@ -280,4 +282,25 @@
 }
 */
 
+- (IBAction)packUpClick:(UIButton *)sender {
+    
+    [UIView beginAnimations:@"" context:@""];
+    [UIView setAnimationDuration:.9];
+    [UIView setAnimationCurve:
+     UIViewAnimationCurveEaseInOut];
+    /*
+    self.view.frame = CGRectMake(0, 0, DEVICE_WIDTH, 50);
+    [self.nameLabel removeFromSuperview];
+    [self.numberLabel removeFromSuperview];
+    [self.gifView removeFromSuperview];
+    [self.packUp removeFromSuperview];
+    //self.timeLength.frame = CGRectMake(<#CGFloat x#>, <#CGFloat y#>, <#CGFloat width#>, <#CGFloat height#>)
+    */
+    [UIView setAnimationRepeatCount:0];
+    [UIView commitAnimations];
+    
+    
+    
+    
+}
 @end

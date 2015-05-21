@@ -8,11 +8,6 @@
 
 #import "BATableViewIndex.h"
 
-#if !__has_feature(objc_arc)
-#error AIMTableViewIndexBar must be built with ARC.
-// You can turn on ARC for only AIMTableViewIndexBar files by adding -fobjc-arc to the build phase for each of its files.
-#endif
-
 #define RGB(r,g,b,a)  [UIColor colorWithRed:(double)r/255.0f green:(double)g/255.0f blue:(double)b/255.0f alpha:a]
 
 @interface BATableViewIndex (){

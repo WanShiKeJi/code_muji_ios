@@ -56,12 +56,13 @@
 
 #pragma mark - 键盘显示响应函数
 -(void)keyboardWillShowNotif:(NSNotification*)notif{
+    /*
     NSDictionary* userInfo=[notif userInfo];
     NSValue* avalue=[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
     CGRect keyboardRect=[avalue CGRectValue];
     CGFloat height=keyboardRect.size.height;//键盘高度
-    //self.g_keyboardHeight=height; //全局记录键盘高度
-    
+    self.g_keyboardHeight=height; //全局记录键盘高度
+    */
 }
 
 #pragma mark - 键盘隐藏响应函数

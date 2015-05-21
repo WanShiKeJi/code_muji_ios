@@ -23,8 +23,7 @@
 /****计算2个时间点的时间差****/
 - (NSString *)intervalFromLastDate:(NSString *)sDate toTheDate:(NSString *)endDate;
 
-/********判断是否邮箱，手机号码***************/
--(void)isOrNotTelephoneNumberAndEmailWithString:(NSString *)string;
+
 
 
 

@@ -108,9 +108,9 @@
         focused = [focused stretchableImageWithLeftCapWidth:focused.size.width * 0.5 topCapHeight:focused.size.height * 0.7];
     }else{
         
-        normal = [UIImage imageNamed:@"chatfrom_bg_normal.png"];//messages_left_bubble_selected
+        normal = [UIImage imageNamed:@"ReceiverTextNodeBkg"];//messages_left_bubble_selected
         normal = [normal stretchableImageWithLeftCapWidth:normal.size.width * 0.5 topCapHeight:normal.size.height * 0.7];
-        focused = [UIImage imageNamed:@"chatfrom_bg_focused.png"];
+        focused = [UIImage imageNamed:@"ReceiverTextNodeBkg_selected"];//messages_left_bubble
         focused = [focused stretchableImageWithLeftCapWidth:focused.size.width * 0.5 topCapHeight:focused.size.height * 0.7];
         
     }

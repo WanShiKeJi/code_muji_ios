@@ -15,10 +15,10 @@
 - (void)drawRect:(CGRect)rect {
     
     //添加4个button
-    [self creatButtonWithNormalName:@"icon_call24"andSelectName:@"icon_up24"andTitle:NSLocalizedString(@"Phone", nil) andIndex:0];
-    [self creatButtonWithNormalName:@"icon_message24"andSelectName:@"icon_message24selected"andTitle:NSLocalizedString(@"Message", nil)andIndex:1];
-    [self creatButtonWithNormalName:@"icon_person24"andSelectName:@"icon_person24selected"andTitle:NSLocalizedString(@"Contacts", nil)andIndex:2];
-    [self creatButtonWithNormalName:@"icon_discovery24"andSelectName:@"icon_discovery24selected"andTitle:NSLocalizedString(@"Discovery", nil)andIndex:3];
+    [self creatButtonWithNormalName:@"icon_call"andSelectName:@"icon_up"andTitle:NSLocalizedString(@"Phone", nil) andIndex:0];
+    [self creatButtonWithNormalName:@"icon_message"andSelectName:@"icon_message_selected"andTitle:NSLocalizedString(@"Message", nil)andIndex:1];
+    [self creatButtonWithNormalName:@"icon_person"andSelectName:@"icon_person_selected"andTitle:NSLocalizedString(@"Contacts", nil)andIndex:2];
+    [self creatButtonWithNormalName:@"icon_discover"andSelectName:@"icon_discover_selected"andTitle:NSLocalizedString(@"Discovery", nil)andIndex:3];
     //添加呼叫button
     [self addCallBtn];
     
@@ -85,7 +85,8 @@
     self.callBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.callBtn.frame = CGRectMake(self.frame.size.width/4, 0, self.frame.size.width/2, self.frame.size.height);
     self.callBtn.hidden = YES;
-    [self.callBtn setImage:[UIImage imageNamed:@"call"] forState:UIControlStateNormal];
+    [self.callBtn setImage:[UIImage imageNamed:@"tool_bar_icon_call_normal"] forState:UIControlStateNormal];
+    [self.callBtn setImage:[UIImage imageNamed:@"tool_bar_icon_call_pressed"] forState:UIControlStateNormal];
     [self.callBtn addTarget:self action:@selector(callBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview: self.callBtn];

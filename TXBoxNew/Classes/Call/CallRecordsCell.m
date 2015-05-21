@@ -30,25 +30,13 @@
     
 }
 
-- (IBAction)mesBtn:(UIButton *)sender {
-    
-    
-    
-    //VCLog(@"msg");
-}
-- (IBAction)personBtn:(UIButton *)sender {
-    
-    //显示add联系人界面
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kShowAddContacts object:self]];
-    //VCLog(@"person");
-}
 
 
 #pragma mark-创建上下分割线
 - (void)drawRect:(CGRect)rect
 {
     for (int i =0; i<2; i++) {
-        _view = [[UIImageView alloc]initWithFrame:CGRectMake(10, -1+i*rect.size.height, rect.size.width-10, 1)];
+        _view = [[UIImageView alloc]initWithFrame:CGRectMake(10, +i*rect.size.height+1, rect.size.width-10, 1)];
         _view.image = [UIImage imageNamed:@"test.png"];
     }
     [self.contentView addSubview:_view];

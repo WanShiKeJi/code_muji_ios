@@ -149,7 +149,7 @@
     
     VCLog(@"peripheralArray:%@", self.peripheralArray);
     
-    VCLog(@"设备名：%@ 广告数据：%@ 信号强度：%@ 设备UUID：%@",peripheral.name,advertisementData,RSSI,peripheral.UUID);
+    VCLog(@"设备名：%@ 广告数据：%@ 信号强度：%@ ",peripheral.name,advertisementData,RSSI);
 }
 
 

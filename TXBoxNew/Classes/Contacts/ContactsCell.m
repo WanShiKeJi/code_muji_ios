@@ -16,12 +16,6 @@
     
 }
 
-#pragma mark 信息按钮事件
-- (IBAction)msgBtn:(UIButton *)sender
-{
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
-    VCLog(@"msg");
-}
 #pragma mark 拨打电话
 - (IBAction)callBtn:(UIButton *)sender
 {
@@ -34,13 +28,6 @@
     
     
 }
-#pragma mark 编辑
-- (IBAction)editBtn:(UIButton *)sender
-{
-    //[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
-    VCLog(@"edit");
-}
-
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];

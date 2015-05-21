@@ -20,40 +20,34 @@
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MWK-x8-yAh">
+                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MWK-x8-yAh">
                         <rect key="frame" x="346" y="48" width="36" height="23"/>
                         <inset key="contentEdgeInsets" minX="4" minY="0.0" maxX="0.0" maxY="0.0"/>
-                        <state key="normal" image="icon_person32">
+                        <state key="normal" image="icon_edit">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
-                        <connections>
-                            <action selector="editBtn:" destination="XEI-8E-ODv" eventType="touchUpInside" id="RAZ-Q7-8br"/>
-                        </connections>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EG3-eL-CW6">
                         <rect key="frame" x="18" y="48" width="38" height="23"/>
                         <inset key="contentEdgeInsets" minX="6" minY="0.0" maxX="0.0" maxY="0.0"/>
-                        <state key="normal" image="icon_call32">
+                        <state key="normal" image="icon_call">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                         <connections>
                             <action selector="callBtn:" destination="XEI-8E-ODv" eventType="touchUpInside" id="lE3-hm-kXY"/>
                         </connections>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sWR-wA-5dr">
-                        <rect key="frame" x="162" y="48" width="36" height="23"/>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sWR-wA-5dr">
+                        <rect key="frame" x="182" y="48" width="36" height="23"/>
                         <inset key="contentEdgeInsets" minX="4" minY="0.0" maxX="0.0" maxY="0.0"/>
-                        <state key="normal" image="icon_message32">
+                        <state key="normal" image="icon_message">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
-                        <connections>
-                            <action selector="msgBtn:" destination="XEI-8E-ODv" eventType="touchUpInside" id="w63-eg-JGZ"/>
-                        </connections>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sri-W9-yG7">
                         <rect key="frame" x="340" y="13" width="42" height="18"/>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
@@ -70,17 +64,20 @@
                     <constraint firstAttribute="bottomMargin" secondItem="sri-W9-yG7" secondAttribute="bottom" constant="40" id="ZSF-zK-qty"/>
                     <constraint firstItem="sri-W9-yG7" firstAttribute="top" secondItem="JwT-Rv-qZ9" secondAttribute="topMargin" constant="5" id="frh-TS-mGR"/>
                     <constraint firstItem="sWR-wA-5dr" firstAttribute="top" secondItem="JwT-Rv-qZ9" secondAttribute="topMargin" constant="40" id="j5x-DA-CHl"/>
+                    <constraint firstItem="sri-W9-yG7" firstAttribute="top" secondItem="JwT-Rv-qZ9" secondAttribute="topMargin" constant="5" id="mk9-U4-tyf"/>
                     <constraint firstAttribute="bottomMargin" secondItem="MWK-x8-yAh" secondAttribute="bottom" id="oog-SZ-IyO"/>
                     <constraint firstAttribute="bottomMargin" secondItem="sWR-wA-5dr" secondAttribute="bottom" id="z6R-L9-uMD"/>
                     <constraint firstAttribute="centerX" secondItem="sWR-wA-5dr" secondAttribute="centerX" id="zkQ-m0-v8I"/>
                 </constraints>
                 <variation key="default">
                     <mask key="constraints">
+                        <exclude reference="0D6-9v-ggC"/>
                         <exclude reference="ZSF-zK-qty"/>
                     </mask>
                 </variation>
             </tableViewCellContentView>
             <connections>
+                <outlet property="editBtn" destination="MWK-x8-yAh" id="GNO-id-Zyo"/>
                 <outlet property="msgsBtn" destination="sWR-wA-5dr" id="ZeI-Db-y9c"/>
                 <outlet property="nameLabel" destination="3eJ-3F-yhQ" id="jtn-0m-JiI"/>
                 <outlet property="numberLabel" destination="sri-W9-yG7" id="sZ0-xb-7vn"/>
@@ -89,8 +86,8 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="icon_call32" width="32" height="32"/>
-        <image name="icon_message32" width="32" height="32"/>
-        <image name="icon_person32" width="32" height="32"/>
+        <image name="icon_call" width="32" height="32"/>
+        <image name="icon_edit" width="26" height="26"/>
+        <image name="icon_message" width="32" height="32"/>
     </resources>
 </document>

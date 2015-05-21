@@ -10,5 +10,5 @@
 
 @interface ContactersController : UIViewController
 - (IBAction)addNewContacts:(UIBarButtonItem *)sender;
-
+-(NSMutableArray*)loadContacts;
 @end

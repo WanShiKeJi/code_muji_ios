@@ -42,6 +42,8 @@
 		63D7A59F1B01AD9B004362B0 /* AKNumericFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D7A59A1B01AD9B004362B0 /* AKNumericFormatter.m */; };
 		63D7A5A01B01AD9B004362B0 /* NSString+AKNumericFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D7A59C1B01AD9B004362B0 /* NSString+AKNumericFormatter.m */; };
 		63D7A5A11B01AD9B004362B0 /* UITextField+AKNumericFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D7A59E1B01AD9B004362B0 /* UITextField+AKNumericFormatter.m */; };
+		63D97E151B0C874100C5C33B /* AVOSCloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63D97E141B0C874100C5C33B /* AVOSCloud.framework */; };
+		63D97E181B0C8B3000C5C33B /* TXMsgData.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D97E171B0C8B3000C5C33B /* TXMsgData.m */; };
 		63DBF8AC1B0303C500041321 /* TXNavgationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 63DBF8AB1B0303C500041321 /* TXNavgationController.m */; };
 		63DBF8B21B0321FB00041321 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 63DBF8B41B0321FB00041321 /* Localizable.strings */; };
 		63DBF8B81B033D1600041321 /* DiscoverCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 63DBF8B71B033D1600041321 /* DiscoverCell.m */; };
@@ -54,6 +56,17 @@
 		63DEA6841B009568003343A7 /* AddContacterController.m in Sources */ = {isa = PBXBuildFile; fileRef = 63DEA6831B009568003343A7 /* AddContacterController.m */; };
 		63DEA68A1B0095F7003343A7 /* BLEDeviceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 63DEA6871B0095F7003343A7 /* BLEDeviceCell.m */; };
 		63DEA68B1B0095F7003343A7 /* BLEDevicesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 63DEA6891B0095F7003343A7 /* BLEDevicesController.m */; };
+		63E1FAC71B09C8B8005C7258 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E1FAC61B09C8B8005C7258 /* SystemConfiguration.framework */; };
+		63E1FAC91B09C8C2005C7258 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E1FAC81B09C8C2005C7258 /* MobileCoreServices.framework */; };
+		63E1FACB1B09C8D7005C7258 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E1FACA1B09C8D7005C7258 /* libicucore.dylib */; };
+		63E1FACD1B09C8E5005C7258 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E1FACC1B09C8E5005C7258 /* CoreTelephony.framework */; };
+		63E1FACF1B09C8F2005C7258 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E1FACE1B09C8F2005C7258 /* CoreLocation.framework */; };
+		63E1FAE31B0AD5DE005C7258 /* ChineseToPinyinResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FAD71B0AD5DE005C7258 /* ChineseToPinyinResource.m */; };
+		63E1FAE41B0AD5DE005C7258 /* HanyuPinyinOutputFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FAD91B0AD5DE005C7258 /* HanyuPinyinOutputFormat.m */; };
+		63E1FAE51B0AD5DE005C7258 /* NSString+PinYin4Cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FADB1B0AD5DE005C7258 /* NSString+PinYin4Cocoa.m */; };
+		63E1FAE61B0AD5DE005C7258 /* PinyinFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FADE1B0AD5DE005C7258 /* PinyinFormatter.m */; };
+		63E1FAE71B0AD5DE005C7258 /* PinyinHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 63E1FAE01B0AD5DE005C7258 /* PinyinHelper.m */; };
+		63E1FAE81B0AD5DE005C7258 /* unicode_to_hanyu_pinyin.txt in Resources */ = {isa = PBXBuildFile; fileRef = 63E1FAE21B0AD5DE005C7258 /* unicode_to_hanyu_pinyin.txt */; };
 		63FB5FD51ADBB58700A1A92B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FB5FD41ADBB58700A1A92B /* main.m */; };
 		63FB5FD81ADBB58700A1A92B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FB5FD71ADBB58700A1A92B /* AppDelegate.m */; };
 		63FB5FDE1ADBB58700A1A92B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63FB5FDC1ADBB58700A1A92B /* Main.storyboard */; };
@@ -143,6 +156,9 @@
 		63D7A59C1B01AD9B004362B0 /* NSString+AKNumericFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+AKNumericFormatter.m"; sourceTree = "<group>"; };
 		63D7A59D1B01AD9B004362B0 /* UITextField+AKNumericFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+AKNumericFormatter.h"; sourceTree = "<group>"; };
 		63D7A59E1B01AD9B004362B0 /* UITextField+AKNumericFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextField+AKNumericFormatter.m"; sourceTree = "<group>"; };
+		63D97E141B0C874100C5C33B /* AVOSCloud.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AVOSCloud.framework; sourceTree = "<group>"; };
+		63D97E161B0C8B3000C5C33B /* TXMsgData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TXMsgData.h; sourceTree = "<group>"; };
+		63D97E171B0C8B3000C5C33B /* TXMsgData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TXMsgData.m; sourceTree = "<group>"; };
 		63DBF8AA1B0303C500041321 /* TXNavgationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TXNavgationController.h; sourceTree = "<group>"; };
 		63DBF8AB1B0303C500041321 /* TXNavgationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TXNavgationController.m; sourceTree = "<group>"; };
 		63DBF8B31B0321FB00041321 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -166,6 +182,23 @@
 		63DEA6871B0095F7003343A7 /* BLEDeviceCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLEDeviceCell.m; sourceTree = "<group>"; };
 		63DEA6881B0095F7003343A7 /* BLEDevicesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLEDevicesController.h; sourceTree = "<group>"; };
 		63DEA6891B0095F7003343A7 /* BLEDevicesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLEDevicesController.m; sourceTree = "<group>"; };
+		63E1FAC61B09C8B8005C7258 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		63E1FAC81B09C8C2005C7258 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		63E1FACA1B09C8D7005C7258 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
+		63E1FACC1B09C8E5005C7258 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		63E1FACE1B09C8F2005C7258 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		63E1FAD61B0AD5DE005C7258 /* ChineseToPinyinResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChineseToPinyinResource.h; sourceTree = "<group>"; };
+		63E1FAD71B0AD5DE005C7258 /* ChineseToPinyinResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChineseToPinyinResource.m; sourceTree = "<group>"; };
+		63E1FAD81B0AD5DE005C7258 /* HanyuPinyinOutputFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HanyuPinyinOutputFormat.h; sourceTree = "<group>"; };
+		63E1FAD91B0AD5DE005C7258 /* HanyuPinyinOutputFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HanyuPinyinOutputFormat.m; sourceTree = "<group>"; };
+		63E1FADA1B0AD5DE005C7258 /* NSString+PinYin4Cocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+PinYin4Cocoa.h"; sourceTree = "<group>"; };
+		63E1FADB1B0AD5DE005C7258 /* NSString+PinYin4Cocoa.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+PinYin4Cocoa.m"; sourceTree = "<group>"; };
+		63E1FADC1B0AD5DE005C7258 /* PinYin4Objc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinYin4Objc.h; sourceTree = "<group>"; };
+		63E1FADD1B0AD5DE005C7258 /* PinyinFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinyinFormatter.h; sourceTree = "<group>"; };
+		63E1FADE1B0AD5DE005C7258 /* PinyinFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PinyinFormatter.m; sourceTree = "<group>"; };
+		63E1FADF1B0AD5DE005C7258 /* PinyinHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinyinHelper.h; sourceTree = "<group>"; };
+		63E1FAE01B0AD5DE005C7258 /* PinyinHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PinyinHelper.m; sourceTree = "<group>"; };
+		63E1FAE21B0AD5DE005C7258 /* unicode_to_hanyu_pinyin.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = unicode_to_hanyu_pinyin.txt; sourceTree = "<group>"; };
 		63FB5FCF1ADBB58700A1A92B /* TXBoxNew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TXBoxNew.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63FB5FD31ADBB58700A1A92B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63FB5FD41ADBB58700A1A92B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -184,6 +217,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63E1FACF1B09C8F2005C7258 /* CoreLocation.framework in Frameworks */,
+				63E1FACD1B09C8E5005C7258 /* CoreTelephony.framework in Frameworks */,
+				63E1FACB1B09C8D7005C7258 /* libicucore.dylib in Frameworks */,
+				63E1FAC91B09C8C2005C7258 /* MobileCoreServices.framework in Frameworks */,
+				63E1FAC71B09C8B8005C7258 /* SystemConfiguration.framework in Frameworks */,
+				63D97E151B0C874100C5C33B /* AVOSCloud.framework in Frameworks */,
 				632AC6441ADCF0240023FAA9 /* libsqlite3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -216,6 +255,8 @@
 				632AC6361ADCE92F0023FAA9 /* TXData.m */,
 				632AC6371ADCE92F0023FAA9 /* TXSqliteOperate.h */,
 				632AC6381ADCE92F0023FAA9 /* TXSqliteOperate.m */,
+				63D97E161B0C8B3000C5C33B /* TXMsgData.h */,
+				63D97E171B0C8B3000C5C33B /* TXMsgData.m */,
 			);
 			path = Sqlite_3;
 			sourceTree = "<group>";
@@ -258,6 +299,7 @@
 		635299771ADE3AF7006840AC /* Call */ = {
 			isa = PBXGroup;
 			children = (
+				63E1FAD41B0AD5DE005C7258 /* PinYin4Objc */,
 				63D7A5971B01AD9B004362B0 /* AKNumericFormatter */,
 				635299781ADE3AF7006840AC /* CallController.h */,
 				635299791ADE3AF7006840AC /* CallController.m */,
@@ -401,6 +443,21 @@
 			path = AKNumericFormatter;
 			sourceTree = "<group>";
 		};
+		63D97E131B0C86FA00C5C33B /*  StaticLibrarys */ = {
+			isa = PBXGroup;
+			children = (
+				63D97E141B0C874100C5C33B /* AVOSCloud.framework */,
+				63E1FACE1B09C8F2005C7258 /* CoreLocation.framework */,
+				63E1FACC1B09C8E5005C7258 /* CoreTelephony.framework */,
+				63E1FAC81B09C8C2005C7258 /* MobileCoreServices.framework */,
+				63E1FAC61B09C8B8005C7258 /* SystemConfiguration.framework */,
+				632AC6431ADCF0240023FAA9 /* libsqlite3.dylib */,
+				63E1FACA1B09C8D7005C7258 /* libicucore.dylib */,
+			);
+			name = " StaticLibrarys";
+			path = "TXBoxNew/ StaticLibrarys";
+			sourceTree = "<group>";
+		};
 		63DEA66E1B009425003343A7 /* msgDetail */ = {
 			isa = PBXGroup;
 			children = (
@@ -446,13 +503,48 @@
 			path = setting;
 			sourceTree = "<group>";
 		};
+		63E1FAD41B0AD5DE005C7258 /* PinYin4Objc */ = {
+			isa = PBXGroup;
+			children = (
+				63E1FAD51B0AD5DE005C7258 /* Classes */,
+				63E1FAE11B0AD5DE005C7258 /* Resources */,
+			);
+			path = PinYin4Objc;
+			sourceTree = "<group>";
+		};
+		63E1FAD51B0AD5DE005C7258 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				63E1FAD61B0AD5DE005C7258 /* ChineseToPinyinResource.h */,
+				63E1FAD71B0AD5DE005C7258 /* ChineseToPinyinResource.m */,
+				63E1FAD81B0AD5DE005C7258 /* HanyuPinyinOutputFormat.h */,
+				63E1FAD91B0AD5DE005C7258 /* HanyuPinyinOutputFormat.m */,
+				63E1FADA1B0AD5DE005C7258 /* NSString+PinYin4Cocoa.h */,
+				63E1FADB1B0AD5DE005C7258 /* NSString+PinYin4Cocoa.m */,
+				63E1FADC1B0AD5DE005C7258 /* PinYin4Objc.h */,
+				63E1FADD1B0AD5DE005C7258 /* PinyinFormatter.h */,
+				63E1FADE1B0AD5DE005C7258 /* PinyinFormatter.m */,
+				63E1FADF1B0AD5DE005C7258 /* PinyinHelper.h */,
+				63E1FAE01B0AD5DE005C7258 /* PinyinHelper.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		63E1FAE11B0AD5DE005C7258 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				63E1FAE21B0AD5DE005C7258 /* unicode_to_hanyu_pinyin.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		63FB5FC61ADBB58700A1A92B = {
 			isa = PBXGroup;
 			children = (
-				632AC6431ADCF0240023FAA9 /* libsqlite3.dylib */,
 				63FB5FD11ADBB58700A1A92B /* TXBoxNew */,
 				63FB5FEB1ADBB58800A1A92B /* TXBoxNewTests */,
 				63FB5FD01ADBB58700A1A92B /* Products */,
+				63D97E131B0C86FA00C5C33B /*  StaticLibrarys */,
 			);
 			sourceTree = "<group>";
 		};
@@ -565,6 +657,7 @@
 				TargetAttributes = {
 					63FB5FCE1ADBB58700A1A92B = {
 						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = FUNQN7N5RS;
 					};
 					63FB5FE71ADBB58800A1A92B = {
 						CreatedOnToolsVersion = 6.3;
@@ -601,6 +694,7 @@
 				63FB5FDE1ADBB58700A1A92B /* Main.storyboard in Resources */,
 				63DEA67A1B0094FB003343A7 /* messages.plist in Resources */,
 				63FB5FE31ADBB58700A1A92B /* LaunchScreen.xib in Resources */,
+				63E1FAE81B0AD5DE005C7258 /* unicode_to_hanyu_pinyin.txt in Resources */,
 				63DBF8B21B0321FB00041321 /* Localizable.strings in Resources */,
 				63FB5FE01ADBB58700A1A92B /* Images.xcassets in Resources */,
 				637C29D91AEB9FF200CD3DAF /* ContactsCell.xib in Resources */,
@@ -626,8 +720,10 @@
 				632AC63A1ADCE92F0023FAA9 /* TXSqliteOperate.m in Sources */,
 				63FB5FD81ADBB58700A1A92B /* AppDelegate.m in Sources */,
 				6350035F1ADFBB750051377F /* Records.m in Sources */,
+				63D97E181B0C8B3000C5C33B /* TXMsgData.m in Sources */,
 				6352995C1ADE0296006840AC /* TXTelNumSingleton.m in Sources */,
 				63D7A5951B0196A9004362B0 /* PopView.m in Sources */,
+				63E1FAE61B0AD5DE005C7258 /* PinyinFormatter.m in Sources */,
 				6352996B1ADE372E006840AC /* TabBarViewController.m in Sources */,
 				63DEA6801B009512003343A7 /* NewMsgController.m in Sources */,
 				637005D81AE4DE2400B8BAFD /* NSString+helper.m in Sources */,
@@ -637,12 +733,15 @@
 				635003591ADF9C790051377F /* ContactsCell.m in Sources */,
 				6359D08E1AE5F28E00592201 /* MessageCell.m in Sources */,
 				635003531ADF93010051377F /* DiscoverController.m in Sources */,
+				63E1FAE71B0AD5DE005C7258 /* PinyinHelper.m in Sources */,
 				63DBF8B81B033D1600041321 /* DiscoverCell.m in Sources */,
 				637C29D61AEB9B0200CD3DAF /* BATableViewIndex.m in Sources */,
 				637C29D51AEB9B0200CD3DAF /* BATableView.m in Sources */,
 				630DE9501AEE23A600FAA575 /* HPTextViewInternal.m in Sources */,
+				63E1FAE31B0AD5DE005C7258 /* ChineseToPinyinResource.m in Sources */,
 				63DEA67C1B0094FB003343A7 /* MsgDetailController.m in Sources */,
 				630DE94F1AEE23A600FAA575 /* HPGrowingTextView.m in Sources */,
+				63E1FAE51B0AD5DE005C7258 /* NSString+PinYin4Cocoa.m in Sources */,
 				63DEA6791B0094FB003343A7 /* Message.m in Sources */,
 				63DEA6841B009568003343A7 /* AddContacterController.m in Sources */,
 				635299811ADE3AF7006840AC /* CallController.m in Sources */,
@@ -658,6 +757,7 @@
 				637005CB1AE4C1D000B8BAFD /* TXCallAction.m in Sources */,
 				637005D91AE4DE2400B8BAFD /* TXGeneral+helper.m in Sources */,
 				63DEA67B1B0094FB003343A7 /* MsgDetailCell.m in Sources */,
+				63E1FAE41B0AD5DE005C7258 /* HanyuPinyinOutputFormat.m in Sources */,
 				632AC6391ADCE92F0023FAA9 /* TXData.m in Sources */,
 				6352996A1ADE372E006840AC /* CustomTabBarBtn.m in Sources */,
 				637005CC1AE4C1D000B8BAFD /* TXMessageProcessing.m in Sources */,
@@ -800,6 +900,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/TXBoxNew/",
+					StaticLibrarys,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/TXBoxNew/TXBoxNew.pch";
 				HEADER_SEARCH_PATHS = (
@@ -812,6 +926,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-lxml2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -822,6 +937,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/",
+					StaticLibrarys,
+					"$(PROJECT_DIR)/TXBoxNew/",
+					StaticLibrarys,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/TXBoxNew/TXBoxNew.pch";
 				HEADER_SEARCH_PATHS = (
@@ -834,6 +962,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-lxml2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

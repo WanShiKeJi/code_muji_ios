@@ -40,7 +40,7 @@
 
     //1.添加数字键盘
     self.keyView = [[TXKeyView alloc]initWithFrame:CGRectMake(0,DEVICE_HEIGHT, DEVICE_WIDTH, keyHight*5.f+InputBoxView)];
-    self.keyView.backgroundColor = RGBACOLOR(201, 201, 201, 1);//键盘背景色
+    self.keyView.backgroundColor = [UIColor whiteColor];//键盘背景色
     [self.view addSubview:self.keyView];
     flag = NO;
     
@@ -150,7 +150,7 @@
             //弹出键盘
             self.keyView .frame=CGRectMake(0,DEVICE_HEIGHT-49-4*keyHight-NaviBarHeight-InputBoxView, DEVICE_WIDTH, keyHight*4.f+InputBoxView);
             flag = YES;
-            [button setImage:[UIImage imageNamed:@"icon_up24"] forState:UIControlStateSelected];
+            [button setImage:[UIImage imageNamed:@"icon_up"] forState:UIControlStateSelected];
             //若已输入号码，显示callBtn
             if (singleton.singletonValue.length>0) {
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.38f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -164,7 +164,7 @@
             flag = NO;
             [self customKeyboardHide];
             //
-            [button setImage:[UIImage imageNamed:@"icon_down24"] forState:UIControlStateSelected];
+            [button setImage:[UIImage imageNamed:@"icon_down"] forState:UIControlStateSelected];
         }
 
         [UIView setAnimationRepeatCount:0];
@@ -259,7 +259,7 @@
     if ([notifi.name isEqualToString:kHideCusotomTabBar]) {
         tabBarView.hidden = YES;
     }
-    if ([notifi.name isEqualToString:kShowAddContacts]) {
+    if ([notifi.name isEqualToString:kHideTabBarAndCallBtn]) {
         tabBarView.callBtn.hidden = YES;
         tabBarView.hidden = YES;
     }

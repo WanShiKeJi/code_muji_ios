@@ -17,14 +17,14 @@
 #import "MsgDetailController.h"
 #import "MsgDatas.h"
 
-@interface ContactersController ()<UISearchBarDelegate,UISearchResultsUpdating,BATableViewDelegate,ABNewPersonViewControllerDelegate,UISearchControllerDelegate>
+@interface ContactersController ()<UISearchBarDelegate,UISearchResultsUpdating,BATableViewDelegate,ABNewPersonViewControllerDelegate,ABPersonViewControllerDelegate,UISearchControllerDelegate>
 {
     NSMutableDictionary *sectionDic;    //sections数据
     NSMutableDictionary *phoneDic;      //同一个人的手机号码dic，
     NSMutableArray *phoneArray;         //联系人({name:@"",tel:@""},{name:@"",tel:@""})
     NSArray *sortedArray;               //排序后的数组
-    ABNewPersonViewController *newPerson;
     MsgDatas *msgdata;
+    
 }
 
 @property (strong,nonatomic) UISearchController *searchController;  //实现disPlaySearchBar
@@ -85,7 +85,7 @@
 -(void) initSearchController
 {
     //需要初始化一下UISearchController:
-    self.searchVC = // 创建出搜索使用的表示图控制器
+    // 创建出搜索使用的表示图控制器
     self.searchVC = [[UITableViewController alloc] initWithStyle:UITableViewStylePlain];
     self.searchVC.tableView.dataSource = self;
     self.searchVC.tableView.delegate = self;
@@ -138,11 +138,12 @@
     
     //初始化电话簿
     ABAddressBookRef myAddressBook = nil;
+    CFErrorRef *error = nil;
     
     //判断ios版本，6.0+需获取权限
     if (IOS_DEVICE_VERSION>=6.0) {
         
-        myAddressBook=ABAddressBookCreateWithOptions(NULL, NULL);
+        myAddressBook=ABAddressBookCreateWithOptions(NULL, error);
         dispatch_semaphore_t sema=dispatch_semaphore_create(0);
         ABAddressBookRequestAccessWithCompletion(myAddressBook, ^(bool greanted, CFErrorRef error){
             dispatch_semaphore_signal(sema);
@@ -154,7 +155,7 @@
     else
     {
         //6.0以下直接获取
-        CFErrorRef *error = nil;
+        
         myAddressBook = ABAddressBookCreateWithOptions(nil, error);
         //myAddressBook =ABAddressBookCreate();
     }
@@ -170,6 +171,7 @@
     CFMutableArrayRef mresults=CFArrayCreateMutableCopy(kCFAllocatorDefault,CFArrayGetCount(results),results);
     
     //将结果按照拼音排序，将结果放入mresults数组中
+        
     CFArraySortValues(mresults,
                       CFRangeMake(0, CFArrayGetCount(results)),
                       (CFComparatorFunction) ABPersonComparePeopleByName,
@@ -366,7 +368,7 @@
         Records *record = self.searchsArray[indexPath.row];
         cell.nameLabel.text = record.personName;
         cell.numberLabel.text = record.personTel;
-        [cell.msgsBtn addTarget:self action:@selector(msgsBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        
     }
     else{
         //原生表
@@ -379,14 +381,15 @@
         cell.numberLabel.text = [[[[persons objectAtIndex:indexPath.row] objectForKey:@"personTel"] purifyString] insertStr];
         VCLog(@"name:%@,number:%@",cell.nameLabel.text,cell.numberLabel.text);
         
-        [cell.msgsBtn addTarget:self action:@selector(msgsBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        
     }
-    
+    [cell.msgsBtn addTarget:self action:@selector(msgsBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.editBtn addTarget:self action:@selector(editButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     return cell;
 }
 -(void)msgsBtnClick:(UIButton *)btn
 {
-    
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
     //进入msgDetail
     UIStoryboard *board = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     MsgDetailController *msgDetail = [board instantiateViewControllerWithIdentifier:@"msgDetail"];
@@ -405,6 +408,58 @@
     
     //VCLog(@"msgsclick");
 }
+
+
+-(void)editButtonClick:(UIButton *)btn{
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kHideTabBarAndCallBtn object:self]];
+    NSIndexPath *indexPath = [self.contactTableView.tableView indexPathForSelectedRow];
+    NSString *key=[NSString stringWithFormat:@"%@",sortedArray[indexPath.section]];
+    
+    NSMutableArray *persons=[sectionDic objectForKey:key];
+    NSString *name = [[persons objectAtIndex:indexPath.row] objectForKey:@"personName"];
+    
+    [self showPersonViewControllerWithName:name];
+}
+#pragma mark -- 跳转到编辑联系人
+//跳转到edit联系人
+-(void)showPersonViewControllerWithName:(NSString *)string{
+    CFStringRef name = (__bridge CFStringRef)string;
+    //CFErrorRef *error;
+    //  获取通讯录
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL,NULL) ;//ABAddressBookCreate()
+    //  查找名字为Appleseed的联系人
+    NSArray *people = (__bridge NSArray *)ABAddressBookCopyPeopleWithName(addressBook,name);//
+    // 若找到了，显示其信息
+    if ((people != nil) && [people count])
+    {
+        ABRecordRef person = (__bridge ABRecordRef)[people objectAtIndex:0];
+        ABPersonViewController *picker = [[ABPersonViewController alloc] init];
+        picker.personViewDelegate = self;
+        picker.displayedPerson = person;
+        picker.allowsEditing = YES;//是否显示编辑按钮
+        picker.allowsActions = NO;//是否显示可以打电话发信息
+        [self.navigationController pushViewController:picker animated:YES];
+        
+    }
+    else
+    {
+        // 提示找不到联系人
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Could not find %@",string] delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+        [alert show];
+        
+    }
+    
+    CFRelease(addressBook);
+    
+}
+
+#pragma mark --ABPersonViewControllerDelegate methods
+// Does not allow users to perform default actions such as dialing a phone number, when they select a contact property. 不允许用户执行默认行为如拨电话号码，当他们选择一个联系人。
+- (BOOL)personViewController:(ABPersonViewController *)personViewController shouldPerformDefaultActionForPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifierForValue
+{
+    return NO;
+}
+
 
 //点击单元格
 -(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -547,7 +602,8 @@
     CFErrorRef *error;
     
     // 1.初始化并创建通讯录对象，记得释放内存
-    ABAddressBookRef addressBook = ABAddressBookCreate();
+    //ABAddressBookRef addressBook = ABAddressBookCreate();
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, error);
     
     NSArray *array = (__bridge NSArray *)ABAddressBookCopyArrayOfAllPeople(addressBook);
     // 3.遍历所有的联系人并修改指定的联系人
@@ -593,11 +649,9 @@
 #pragma mark -- 新增联系人
 -(IBAction)addNewContacts:(UIBarButtonItem *)sender
 {
-    newPerson =[[ABNewPersonViewController alloc] init];
+    ABNewPersonViewController *newPerson =[[ABNewPersonViewController alloc] init];
     newPerson.newPersonViewDelegate = self;
-    
     [self.navigationController pushViewController:newPerson animated:YES];
-
     
 }
 
