@@ -16,5 +16,6 @@
     UIImageView *iconView;
     UIButton    *contentBtn;
 }
+@property (strong,nonatomic) UIButton *contentBtn;
 @property (strong,nonatomic) MsgFrame *msgFrame;
 @end

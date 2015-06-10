@@ -12,4 +12,7 @@
 @property (strong, nonatomic) NSString *personTel;
 @property (strong, nonatomic) NSString *personName;
 
+@property (strong, nonatomic) NSString *personTelNum;
+@property (strong, nonatomic) NSString *personNameNum;
+
 @end

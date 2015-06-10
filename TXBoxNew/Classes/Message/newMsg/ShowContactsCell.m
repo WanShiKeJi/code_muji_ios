@@ -1,14 +1,14 @@
 //
-//  DiscoverCell.m
+//  ShowContactsCell.m
 //  TXBoxNew
 //
-//  Created by Naron on 15/5/13.
+//  Created by Naron on 15/6/5.
 //  Copyright (c) 2015年 playtime. All rights reserved.
 //
 
-#import "DiscoverCell.h"
+#import "ShowContactsCell.h"
 
-@implementation DiscoverCell
+@implementation ShowContactsCell
 
 - (void)awakeFromNib {
     // Initialization code

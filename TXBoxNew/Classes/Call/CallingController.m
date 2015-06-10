@@ -169,6 +169,7 @@
         [self.view removeFromSuperview];
         
         //刷新表格
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kCallViewReloadData object:self ]];
         
     });
     

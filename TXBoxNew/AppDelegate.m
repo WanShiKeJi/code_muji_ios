@@ -18,44 +18,39 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    usDefaults = [NSUserDefaults standardUserDefaults];
     
-    //创建数据库
+    //leanCloud 服务器
+    [AVOSCloud setApplicationId:@"85m0pvb0vv1iluti5sk0xsou1mkftzn06a3f1ompvza9xc7z" clientKey:@"orluh89ufnpvl773b68w5gcdk4dxfrahzwaahz7c46ettn44"];
+    //自动登录
+    //缓存当前用户
+    AVUser *currentUser = [AVUser currentUser];
+    if (currentUser == nil) {
+        [usDefaults setValue:@"0" forKey:call_divert_state];//呼转状态
+        [usDefaults setValue:@"0" forKey:LOGIN_STATE];//登录状态
+        [usDefaults setValue:@"0" forKey:CONFIG_STATE];//配置状态
+        //[usDefaults setValue:@"0" forKey:@"opstate"];
+        [usDefaults setValue:@"0" forKey:BIND_STATE];
+    }
+
+    
+    //创建数据库-和表
     TXSqliteOperate *sqlite = [[TXSqliteOperate alloc] init];
-    [sqlite createTable:CALL_RECORDS_TABLE_NAME];
+    [sqlite createTable:CALL_RECORDS_TABLE_NAME withSql:CALL_RECORDS_CREATE_TABLE_SQL];
+    [sqlite createTable:MESSAGE_RECEIVE_RECORDS_TABLE_NAME withSql:MESSAGE_RECEIVE_RECORDS_CREATE_TABLE_SQL];
     
     //修改导航栏的sytle
     [self changeNavigationBarStyle];
-    
-    usDefaults = [NSUserDefaults standardUserDefaults];
-    [usDefaults setValue:@"0" forKey:call_divert];//呼转状态
     /*
-    //提示绑定拇机号码
-    if (![[usDefaults valueForKey:@"isSetting"] intValue]) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"是否绑定拇机号码？" delegate:self cancelButtonTitle:@"以后再说" otherButtonTitles:@"确定", nil];
-        alert.delegate = self;
-        alert.alertViewStyle =UIAlertViewStylePlainTextInput;
-        [alert show];
-
-    }
+    
+    
     */
     
-    //注册LeanCloud
-    //[AVOSCloud setApplicationId:@"" clientKey:@""];
-        
     
     return YES;
 }
 
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 1) {
-        VCLog(@"sure,set number:13698006536");
-        //保存拇机号码 muji_bind_number
-        [usDefaults setValue:@"13698006536" forKey:@"muji_bind_number"];
-        //保存isSetting状态
-        [usDefaults setValue:@"1" forKey:@"isSetting"];
-    }
-}
+
 -(void) changeNavigationBarStyle
 {
     //背景颜色
@@ -138,10 +133,18 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    //VCLog(@"x2");
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
+    
+    VCLog(@"x");
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    //
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:KRefreshDisvView object:self]];
+    
+    
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

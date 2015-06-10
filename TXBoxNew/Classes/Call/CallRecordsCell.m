@@ -36,7 +36,7 @@
 - (void)drawRect:(CGRect)rect
 {
     for (int i =0; i<2; i++) {
-        _view = [[UIImageView alloc]initWithFrame:CGRectMake(10, +i*rect.size.height+1, rect.size.width-10, 1)];
+        _view = [[UIImageView alloc]initWithFrame:CGRectMake(10, +i*rect.size.height, rect.size.width-10, 1)];
         _view.image = [UIImage imageNamed:@"test.png"];
     }
     [self.contentView addSubview:_view];

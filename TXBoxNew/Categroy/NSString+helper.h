@@ -55,6 +55,10 @@
 
 /*车牌号验证 */
 -(BOOL) validateCarNo:(NSString* )carNo;
+#pragma mark -- 汉字转拼音
+-(NSString  *)hanziTopinyin;
 
-
+#pragma mark -- 拼音转数字
+-(NSString *)pinyinTrimIntNumber;
+-(NSString *)isMobileNumberWhoOperation;
 @end

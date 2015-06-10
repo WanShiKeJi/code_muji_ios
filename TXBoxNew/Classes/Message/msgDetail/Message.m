@@ -10,14 +10,15 @@
 
 @implementation Message
 
-- (void)setDict:(NSDictionary *)dict{
+- (void)setData:(TXData *)ddata{
     
-    _dict = dict;
+    _data = ddata;
     
-    self.icon = dict[@"icon"];
-    self.time = dict[@"time"];
-    self.content = dict[@"content"];
-    self.type = [dict[@"type"] intValue];
+    //self.icon = ddata.icon;
+    self.time = ddata.msgTime;
+    self.content = ddata.msgContent;
+    self.type = [ddata.msgStates intValue];
 }
+
 
 @end

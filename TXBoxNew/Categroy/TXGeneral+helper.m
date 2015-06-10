@@ -81,34 +81,36 @@
 }
 
 #pragma mark -- 判断手机号码运营商格式
-- (NSString *)isMobileNumber:(NSString *)number
++ (NSString *)isMobileNumber:(NSString *)number
 {
     //处理str
-    NSString *mobileNum = [self purifyString:number];
+    NSString *mobileNum = [number purifyString];
     
     
     /**
      * 手机号码
-     * 移动：134[0-8],135,136,137,138,139,150,151,157,158,159,182,187,188
-     * 联通：130,131,132,152,155,156,185,186
-     * 电信：133,1349,153,180,189
+     * 移动：134,135,136,137,138,139,150,151,152,157,158,159,182,183,187,188
+     * 联通：130,131,132,155,156,185,186
+     * 电信：133,153,180,189
      */
-    NSString * MOBILE = @"^1(3[0-9]|5[0-35-9]|8[025-9])\\d{8}$";
+    NSString * MOBILE = @"^1(3[0-9]|5[0-35-9]|8[025-9]).*$";
     /**
      * 中国移动：China Mobile
-     * 134[0-8],135,136,137,138,139,150,151,157,158,159,182,187,188
+     * 134[0-8],135,136,137,138,139,
+     150,151,157,158,159,
+     182,187,188
      */
-    NSString * CM = @"^1(34[0-8]|(3[5-9]|5[017-9]|8[278])\\d)\\d{7}$";
+    NSString * CM = @"^1(34[0-8]|(3[5-9]|5[0127-9]|8[2378])\\d).*$";
     /**
      * 中国联通：China Unicom
-     * 130,131,132,152,155,156,185,186
+     * 130,131,132,155,156,185,186
      */
-    NSString * CU = @"^1(3[0-2]|5[256]|8[56])\\d{8}$";
+    NSString * CU = @"^1(3[0-2]|5[56]|8[56]).*$";
     /**
      * 中国电信：China Telecom
-     * 133,1349,153,180,189
+     * 133,153,180,189
      */
-    NSString * CT = @"^1((33|53|8[09])[0-9]|349)\\d{7}$";
+    NSString * CT = @"^1(33|53|8[09]).*$";
     /**
      * 大陆地区固话及小灵通
      * 区号：010,020,021,022,023,024,025,027,028,029
@@ -137,7 +139,7 @@
             str =  NSLocalizedString(@"Telecom", nil);
             VCLog(@"China Unicom");
         } else {
-            str  = OtherNumber;
+            str  = NSLocalizedString(@"Other", nil);;
             VCLog(@"Unknow");
         }
         
@@ -145,58 +147,13 @@
     }
     else
     {
-        return OtherNumber;
+        return NSLocalizedString(@"Other", nil);
     }
 }
 
-#pragma mark -- 字符串去除特殊符号等（空格，换行符，-，(，)，）
--(NSString *)purifyString:(NSString *)str
-{
-    NSString *string = [[NSString alloc] init];
-    if (str.length>0) {
-        string = [str trimLeftOrRightString];
-        string = [string trimOfString];
-        string = [string iPhoneStandardFormat];
-        string = [string iPhoneStandardedFormat ];
-        string = [string iPhoneStandardededFormat];
-    }
-    
-    
-    return string;
-}
 
 
-#pragma mark -- 获取手机号码归属地(11位号码)
--(NSString *) getNumbersAddress:(NSString *)number
-{
-    NSString *str = [[NSString alloc] init];
-    NSError *error;
-    
-    if (number.length==11) {
-        NSURL *url3= [NSURL URLWithString:[NSString stringWithFormat:TelNumAddress,number]];
-        
-        NSURLRequest *request = [NSURLRequest requestWithURL:url3];
-        
-        
-        NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
-        
-        NSString *str2 = [[NSString alloc] initWithData:data encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)];
-        
-        NSString *str3 = [str2 substringWithRange:NSMakeRange(59, str2.length-205)];
-        NSString *str5 = [str2 substringWithRange:NSMakeRange(135, str2.length-205)];
-        
-        
-        VCLog(@"str2 :%@\n",str2);
-        VCLog(@"address :%@%@\n",str3,str5);
-        
-        str = [[NSString alloc] initWithFormat:@"%@%@",str3,str5];
-        
-        return str;
-        
-    }
-    
-    return @"未知";
-}
+
 
 #pragma mark --计算2个时间点的时间差
 

@@ -7,6 +7,7 @@
 //
 
 #import "TXSqliteOperate.h"
+#import "NSString+helper.h"
 
 @implementation TXSqliteOperate
 
@@ -17,7 +18,7 @@
     //文件的路径
     NSString *path=[[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",DB_NAME]];
     
-    VCLog(@"sqlite3_path:%@",path);
+    //VCLog(@"sqlite3_path:%@",path);
     //若数据库存在就打开，不存在就创建，
     //[path UTF8String]把字符串转成char。。。SQLITE_OK常量0
     if (sqlite3_open([path UTF8String], &dataBase)==SQLITE_OK) {
@@ -27,12 +28,13 @@
     
     return NO;
 }
+
 #pragma mark --建表
--(void)createTable:(NSString *)tableName
+-(void)createTable:(NSString *)tableName withSql:(NSString *)sqlSring;
 {
     if ([self openDatabase]) {
         //sql语句AUTOINCREMENT
-        NSString *sql = [NSString stringWithFormat:@"create table if not exists %@(tel_id integer primary key AUTOINCREMENT,hisName text,hisNumber text,callDirection text,callLength text,callBeginTime text,hisHome text,hisOperator text)",tableName];
+        NSString *sql = [NSString stringWithFormat:sqlSring,tableName];
         
         //执行sql语句
         if (sqlite3_exec(dataBase, [sql UTF8String], NULL, NULL, &msg)==SQLITE_OK) {
@@ -53,12 +55,13 @@
 }
 
 #pragma mark --插入(添加)数据
--(void)addInfo:(TXData *)data into:(NSString *)table
+-(void)addInfo:(TXData *)data inTable:(NSString *)table withSql:(NSString *)sqlSring;
 {
+    VCLog(@"******** sender:%@,T:%@,cont:%@,accp:%@,state:%@",data.msgSender,data.msgTime,data.msgContent,data.msgAccepter,data.msgStates);
     if ([self openDatabase]) {
-        
+
         //NSString *insertSql = [NSString stringWithFormat:@"insert into tels(tel_number) values(?)"];
-        NSString *insertSql = [NSString stringWithFormat:@"insert into %@(hisName ,hisNumber ,callDirection ,callLength,callBeginTime ,hisHome ,hisOperator ) values(?,?,?,?,?,?,?)",table];
+        NSString *insertSql = [NSString stringWithFormat:sqlSring,table];
         
         if (sqlite3_prepare_v2(dataBase, [insertSql UTF8String], -1, &stmt, nil) == SQLITE_OK) {
             VCLog(@"insert prepare ok");
@@ -67,14 +70,27 @@
             //清空错误信息
             sqlite3_free(msg);
         }
-        //sqlite3_bind_int(stmt,1, data.tel_id);
-        sqlite3_bind_text(stmt, 1, [data.hisName UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 2, [data.hisNumber UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 3, [data.callDirection UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 4, [data.callLength UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 5, [data.callBeginTime UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 6, [data.hisHome UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 7, [data.hisOperator UTF8String], -1, NULL);
+        //通话记录
+        if ([sqlSring isEqualToString:CALL_RECORDS_ADDINFO_SQL]) {
+            //sqlite3_bind_int(stmt,1, data.tel_id);
+            sqlite3_bind_text(stmt, 1, [data.hisName UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 2, [data.hisNumber UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 3, [data.callDirection UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 4, [data.callLength UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 5, [data.callBeginTime UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 6, [data.hisHome UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 7, [data.hisOperator UTF8String], -1, NULL);
+        }
+        //添加收信记录
+        if ([sqlSring isEqualToString:MESSAGE_RECORDS_ADDINFO_SQL]) {
+            //sqlite3_bind_int(stmt,1, data.tel_id);
+            sqlite3_bind_text(stmt, 1, [data.msgSender UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 2, [data.msgTime UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 3, [data.msgContent UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 4, [data.msgAccepter UTF8String], -1, NULL);
+            sqlite3_bind_text(stmt, 5, [data.msgStates UTF8String], -1, NULL);
+        }
+        
         
         if (sqlite3_step(stmt) == SQLITE_DONE) {
             //清空错误信息
@@ -97,57 +113,86 @@
     
 }
 
-#pragma mark --查询所有
+#pragma mark --查询
 
--(NSMutableArray *)searchInfoFrom:(NSString *)table
+-(NSMutableArray *)searchInfoFromTable:(NSString *)table
 {
-    mutArray=[[NSMutableArray alloc] init];
+     NSMutableArray *mutArray = [[NSMutableArray alloc] init];//所有信息
     
     if ([self openDatabase]) {
         
-        NSString *selectSql = [NSString stringWithFormat:@"select *from %@",table];
+        NSString *selectSql = [NSString stringWithFormat:SELECT_ALL_SQL,table];
         
         if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
             VCLog(@"select prepare ok!");
         }
-        //循环遍历，sqlite3_step处理一行结果
-        while (sqlite3_step(stmt)==SQLITE_ROW) {
-            
-            int tid=sqlite3_column_int(stmt, 0);
-            
-            NSString *name = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
-            NSString *number=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
-            NSString *direction=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
-            NSString *length=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
-            NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 5) encoding:NSUTF8StringEncoding];
-            NSString *home=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 6) encoding:NSUTF8StringEncoding];
-            NSString *operator=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 7) encoding:NSUTF8StringEncoding];
-            
-            //VCLog(@"id = %d,date = %@",tid,date);
-            
-            TXData *data=[[TXData alloc] init];
-            data.tel_id = tid;
-            data.hisName=name;
-            data.hisNumber=number;
-            data.callDirection=direction;
-            data.callLength = length;
-            data.callBeginTime=beginTime;
-            data.hisHome = home;
-            data.hisOperator = operator;
-            
-            /*
-            [mutArray addObject:[NSString stringWithFormat:@"%d",tid]];
-            [mutArray addObject:number];
-            [mutArray addObject:date];
-            [mutArray addObject:operators];
-            [mutArray addObject:address];
-            [mutArray addObject:name];
-            */
-            
-            [mutArray addObject:data];//
-            
-            
+        
+        //============所有通话记录===================
+        if ([table isEqualToString:CALL_RECORDS_TABLE_NAME]) {
+            //循环遍历，sqlite3_step处理一行结果
+            while (sqlite3_step(stmt)==SQLITE_ROW) {
+                
+                int tid=sqlite3_column_int(stmt, 0);
+                
+                NSString *name = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+                NSString *number=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
+                NSString *direction=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
+                NSString *length=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
+                NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 5) encoding:NSUTF8StringEncoding];
+                NSString *home=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 6) encoding:NSUTF8StringEncoding];
+                NSString *operator=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 7) encoding:NSUTF8StringEncoding];
+                
+                //VCLog(@"id = %d,date = %@",tid,date);
+                
+                TXData *data=[[TXData alloc] init];
+                data.tel_id = tid;
+                data.hisName=name;
+                data.hisNumber=number;
+                data.callDirection=direction;
+                data.callLength = length;
+                data.callBeginTime=beginTime;
+                data.hisHome = home;
+                data.hisOperator = operator;
+                
+                /*
+                 [mutArray addObject:[NSString stringWithFormat:@"%d",tid]];
+                 [mutArray addObject:number];
+                 [mutArray addObject:date];
+                 [mutArray addObject:operators];
+                 [mutArray addObject:address];
+                 [mutArray addObject:name];
+                 */
+                
+                [mutArray addObject:data];//
+            }
         }
+        
+        //====================所有接收的信息=============
+        if ([table isEqualToString:MESSAGE_RECEIVE_RECORDS_TABLE_NAME]) {
+            //循环遍历，sqlite3_step处理一行结果
+            while (sqlite3_step(stmt)==SQLITE_ROW) {
+                
+                int tid=sqlite3_column_int(stmt, 0);
+                
+                NSString *sender = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+                NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
+                NSString *content=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
+                NSString *accepter=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
+                NSString *state = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 5) encoding:NSUTF8StringEncoding];
+                //VCLog(@"id = %d,date = %@",tid,date);
+                
+                TXData *data=[[TXData alloc] init];
+                data.peopleId = tid;
+                data.msgSender=sender;
+                data.msgTime=beginTime;
+                data.msgContent = content;
+                data.msgAccepter = accepter;
+                data.msgStates = state;
+                [mutArray addObject:data];//
+                
+            }
+        }
+        
         //删除预备语句
         sqlite3_finalize(stmt);
         //关闭
@@ -161,39 +206,32 @@
     return nil;
 }
 
-#pragma mark -- 查询，某一条记录
--(NSMutableArray *)searchARecordWithName:(NSString *)hisName fromTable:(NSString *)table
-{
-    array = [[NSMutableArray alloc] init];
-    
-    if ([self openDatabase]) {
-        
-        
-        NSString *selectSql = [NSString stringWithFormat:@"select from %@ where hisName=%@",table,hisName];
-        
-        if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
-            VCLog(@"select prepare ok!");
-        }
-        
-        //未完
-        
-        
-        
-        
-        
-        
-    }
-
-    return array;
-}
 
 
 #pragma mark --删除-->根据联系人号码
--(void)deleteContacterWithNumber:(NSString *)hisNumber formTable:(NSString *)table
+
+-(void)deleteContacterWithNumber:(NSString *)hisNumber formTable:(NSString *)table peopleId:(NSString *)pId withSql:(NSString *)sqlSring
 {
     if ([self openDatabase]) {
-    
-        NSString *deleteSql=[NSString stringWithFormat:@"delete from %@ where hisNumber=%@",table,hisNumber];
+        
+        NSString *deleteSql;
+        //删除一条通话记录
+        if ([sqlSring isEqualToString:DELETE_CALL_RECORD_SQL]) {
+            deleteSql=[NSString stringWithFormat:sqlSring,table,hisNumber];
+        }
+        
+        //删除单条短信记录，根据id和sender
+        if ([sqlSring isEqualToString:DELETE_MESSAGE_RECORD_SQL]) {
+            deleteSql = [NSString stringWithFormat:sqlSring,table,hisNumber,pId];
+        }
+        
+        //删除整个短信会话
+        if ([sqlSring isEqualToString:DELETE_MESSAGE_RECORD_CONVERSATION_SQL]) {
+            deleteSql = [NSString stringWithFormat:sqlSring,table,hisNumber,hisNumber];
+        }
+        
+        
+        //执行语句
         if (sqlite3_exec(dataBase, [deleteSql UTF8String], nil, nil, &msg)==SQLITE_OK) {
             VCLog(@"delete number = %@ ok",hisNumber);
         }else{
@@ -202,152 +240,277 @@
         }
         
         sqlite3_close(dataBase);
+        
     }else{
         VCLog(@"sqlite  。。。");
     }
     
 }
 
-#pragma mark -- ////////////以下是短信//////////////////
--(void)createMsgTable:(NSString *)tableName;{
-    if ([self openDatabase]) {
-        //sql语句AUTOINCREMENT
-        NSString *sql = [NSString stringWithFormat:@"create table if not exists %@(peopleId integer primary key AUTOINCREMENT,hisName text,hisNumber text,msgBeginTime text,msgContent text)",tableName];
-        
-        //执行sql语句
-        if (sqlite3_exec(dataBase, [sql UTF8String], NULL, NULL, &msg)==SQLITE_OK) {
-            VCLog(@"create table success !");
-        }else{
-            VCLog(@"create table error:%s",msg);
-            //清空错误信息
-            sqlite3_free(msg);
-        }
-        
-    }else {
-        VCLog(@"sqlite ...");
-    }
+#pragma mark --删除一张表
+-(void)deleteTableWithName:(NSString *)table{
     
-    //关闭数据库
-    sqlite3_close(dataBase);
-}
--(void)addInfo:(TXMsgData *)data intoTable:(NSString *)table;
-{
     if ([self openDatabase]) {
         
-        //NSString *insertSql = [NSString stringWithFormat:@"insert into tels(tel_number) values(?)"];
-        NSString *insertSql = [NSString stringWithFormat:@"insert into %@(hisName ,hisNumber ,msgBeginTime ,msgContent  ) values(?,?,?,?)",table];
+        NSString *deleteSql =[NSString stringWithFormat:@"drop table %@",table];
         
-        if (sqlite3_prepare_v2(dataBase, [insertSql UTF8String], -1, &stmt, nil) == SQLITE_OK) {
-            VCLog(@"insert prepare ok");
+        
+        if (sqlite3_exec(dataBase, [deleteSql UTF8String], nil, nil, &msg)==SQLITE_OK) {
+            VCLog(@"delete table = %@ ok",table);
         }else{
-            VCLog(@"insert prepare error:%s",msg);
-            //清空错误信息
+            VCLog(@"error:%s",msg);
             sqlite3_free(msg);
         }
-        //sqlite3_bind_int(stmt,1, data.tel_id);
-        sqlite3_bind_text(stmt, 1, [data.hisName UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 2, [data.hisNumber UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 3, [data.msgBeginTime UTF8String], -1, NULL);
-        sqlite3_bind_text(stmt, 4, [data.msgContent UTF8String], -1, NULL);
         
-        if (sqlite3_step(stmt) == SQLITE_DONE) {
-            //清空错误信息
-            sqlite3_free(msg);
-            VCLog(@"insert success");
-            
-        }else
-        {
-            VCLog(@"insert msg:%s",msg);
-        }
-        
-        sqlite3_reset(stmt);
-        //关闭
         sqlite3_close(dataBase);
+        
     }else{
-        VCLog(@"sqlite ...");
+        VCLog(@"sqlite  。。。");
     }
-    
+}
 
-    
-}//查找所有记录
--(NSMutableArray *)searchInfoFromMsg:(NSString *)table;{
-    mutArray=[[NSMutableArray alloc] init];
+
+#pragma mark -- 根据hisName查询某一次会话所有内容
+-(NSMutableArray *)searchARecordWithNumber:(NSString *)hisNumber fromTable:(NSString *)table withSql:(NSString *)sqlString
+{
+    NSMutableArray *recordsArray = [[NSMutableArray alloc] init];//会话中的每条信息
     
     if ([self openDatabase]) {
         
-        NSString *selectSql = [NSString stringWithFormat:@"select *from %@",table];
+        //修改sql语句
+        NSString *selectSql = [NSString stringWithFormat:sqlString,table,hisNumber,hisNumber];
         
         if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
             VCLog(@"select prepare ok!");
         }
+        
         //循环遍历，sqlite3_step处理一行结果
         while (sqlite3_step(stmt)==SQLITE_ROW) {
             
             int tid=sqlite3_column_int(stmt, 0);
             
-            NSString *name = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
-            NSString *number=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
-            NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
-            NSString *content=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
+            NSString *sender = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+            NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
+            NSString *content=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
+            NSString *accepter=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
+            NSString *state=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 5) encoding:NSUTF8StringEncoding];
+            //VCLog(@"id = %d,date = %@",tid,date);
+            
+            TXData *data=[[TXData alloc] init];
+            data.peopleId = tid;
+            data.msgSender=sender;
+            data.msgTime=beginTime;
+            data.msgContent = content;
+            data.msgAccepter = accepter;
+            data.msgStates = state;
+            [recordsArray addObject:data];//
+            VCLog(@"id:%d, sd:%@, st:%@, sc:%@, sa:%@, ss:%@",tid,sender,beginTime,content,accepter,state);
+        }
+        
+        
+        
+        //删除预备语句
+        sqlite3_finalize(stmt);
+        //关闭
+        sqlite3_close(dataBase);
+        VCLog(@"msg records array :%@",recordsArray);
+        return recordsArray;
+
+    }
+    
+    return nil;
+}
+
+#pragma mark -- 根据hisName查某个会话
+-(TXData *)searchConversationFromtable:(NSString *)table hisNumber:(NSString *)number wihtSqlString:(NSString *)sqlString
+{
+    //查某个会话
+    NSMutableArray *conversationArray = [[NSMutableArray alloc] init];
+    
+    if ([self openDatabase]) {
+        
+        //sql语句
+        NSString *selectSql = [NSString stringWithFormat:sqlString,table,number,number];
+        
+        if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
+            VCLog(@"select prepare ok!");
+        }
+        TXData *data=[[TXData alloc] init];
+        //循环遍历，sqlite3_step处理一行结果
+        while (sqlite3_step(stmt)==SQLITE_ROW) {
+            
+            int tid=sqlite3_column_int(stmt, 0);
+            
+            NSString *sender = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+            NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
+            NSString *content=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
+            NSString *accepter=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
             
             //VCLog(@"id = %d,date = %@",tid,date);
             
-            TXMsgData *data=[[TXMsgData alloc] init];
-            data.peopleId = tid;
-            data.hisName=name;
-            data.hisNumber=number;
-            data.msgBeginTime=beginTime;
-            data.msgContent = content;
-            [mutArray addObject:data];//
             
+            data.peopleId = tid;
+            data.msgSender=sender;
+            data.msgTime=beginTime;
+            data.msgContent = content;
+            data.msgAccepter = accepter;
         }
+        [conversationArray addObject:data];//只取最后一个
+        
+        //删除预备语句
+        sqlite3_finalize(stmt);
+        //关闭
+        sqlite3_close(dataBase);
+        VCLog(@"a conversation array :%@",[conversationArray objectAtIndex:0]);
+        return [conversationArray objectAtIndex:0];
+        
+    }
+    
+    return nil;
+}
+
+#pragma mark -- 查询所有与输入匹配的短信内容
+-(NSMutableArray *)searchContentWithInputText:(NSString *)text fromTable:(NSString *)table withSql:(NSString *)sqlString{
+    
+    NSMutableArray *allContent = [[NSMutableArray alloc] init];
+    if ([self openDatabase]) {
+        
+        
+        //sql语句
+        NSString *selectSql = [NSString stringWithFormat:sqlString,table,text,text,text];
+        
+        if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
+            VCLog(@"select prepare ok!");
+        }
+        TXData *data=[[TXData alloc] init];
+        //循环遍历，sqlite3_step处理一行结果
+        while (sqlite3_step(stmt)==SQLITE_ROW) {
+            
+            int tid=sqlite3_column_int(stmt, 0);
+            
+            NSString *sender = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+            NSString *beginTime=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 2) encoding:NSUTF8StringEncoding];
+            NSString *content=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 3) encoding:NSUTF8StringEncoding];
+            NSString *accepter=[NSString stringWithCString:(char *)sqlite3_column_text(stmt, 4) encoding:NSUTF8StringEncoding];
+            
+            //VCLog(@"id = %d,date = %@",tid,date);
+            
+            data.peopleId = tid;
+            data.msgSender=sender;
+            data.msgTime=beginTime;
+            data.msgContent = content;
+            data.msgAccepter = accepter;
+            
+            [allContent addObject:data];
+        }
+        
+        
+        //删除预备语句
+        sqlite3_finalize(stmt);
+        //关闭
+        sqlite3_close(dataBase);
+        VCLog(@"allContent :%@",allContent);
+        
+        return allContent;
+    }
+    
+    return nil;
+}
+
+
+///////===============================================================================
+
+-(BOOL)openPhoneArearDatabase
+{
+    //文件的路径
+    //NSString *path=[[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",DB_PHONE_AREAR_NAME]];
+    NSString *dbPath = [[NSBundle mainBundle] pathForResource:@"PhoneAreas" ofType:@"sqlite"];
+    //VCLog(@"dbPath:%@",dbPath);
+    //若数据库存在就打开，不存在就创建，
+    //[path UTF8String]把字符串转成char。。。SQLITE_OK常量0
+    if (sqlite3_open([dbPath UTF8String], &dataBase)==SQLITE_OK) {
+        NSLog(@"is open");
+        return YES;
+    }
+    
+    
+    return NO;
+}
+
+//
+-(NSString *)searchAreacodeFromPhoneDB:(NSString *)hisNumber
+{
+    NSString *areacode;
+    
+    NSString *selectSql = [NSString stringWithFormat:@"select * from numarea where number = %@ ",hisNumber];
+    
+    if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
+        VCLog(@"select prepare ok!");
+    }
+    
+    //循环遍历，sqlite3_step处理一行结果
+    while (sqlite3_step(stmt)==SQLITE_ROW) {
+        
+        // 0 number
+        // 1 areacode
+        areacode = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+        
+        
+    }
+    
+    //删除预备语句
+    sqlite3_finalize(stmt);
+    //关闭
+    //sqlite3_close(dataBase);
+    
+    VCLog(@" areacode=%@",areacode);
+    return areacode;
+    
+
+}
+
+-(NSString *)searchAreaWithHisNumber:(NSString *)hisNumber
+{
+    if ([self openPhoneArearDatabase]) {
+        NSString *acode = [self searchAreacodeFromPhoneDB:hisNumber];
+        NSString *area;
+        NSString *selectSql = [NSString stringWithFormat:@"select * from areas where areacode = %@  ",acode];
+        
+        if (sqlite3_prepare_v2(dataBase, [selectSql UTF8String], -1, &stmt, nil)==SQLITE_OK) {
+            VCLog(@"select prepare ok!");
+        }
+        
+        while (sqlite3_step(stmt)==SQLITE_ROW) {
+            // 0 areacode   区号
+            // 1 area       地区
+            // 2 postCode   邮编
+                
+                
+            area = [NSString stringWithCString:(char *)sqlite3_column_text(stmt, 1) encoding:NSUTF8StringEncoding];
+                
+                
+        }
+            
         //删除预备语句
         sqlite3_finalize(stmt);
         //关闭
         sqlite3_close(dataBase);
         
-        VCLog(@" mutArr=%@",mutArray);
-        return mutArray;
+        VCLog(@" area=%@",area);
+        if (area.length>0) {
+            NSString *sarea = [area purifyString];
+            return [sarea substringWithRange:NSMakeRange(1, sarea.length-2)];
+        }else{
+            return @" ";
+        }
+        
+        
+        
     }
     
+    
+    
     return nil;
-}
-//删除整个会话
--(void)deleteConttentWithNumber:(NSString *)hisNumber formTable:(NSString *)table;{
-    if ([self openDatabase]) {
-        //*错误代码*//
-        NSString *deleteSql=[NSString stringWithFormat:@"delete from %@ where hisNumber=%@",table,hisNumber];
-        if (sqlite3_exec(dataBase, [deleteSql UTF8String], nil, nil, &msg)==SQLITE_OK) {
-            VCLog(@"delete number = %@ ok",hisNumber);
-        }else{
-            VCLog(@"error:%s",msg);
-            sqlite3_free(msg);
-        }
-        
-        sqlite3_close(dataBase);
-    }else{
-        VCLog(@"sqlite  。。。");
-    }
-
-}
-
-//删除单条信息
--(void)deleteConttentWithTime:(NSString *)beginTime formTable:(NSString *)table;{
-    if ([self openDatabase]) {
-        
-        NSString *deleteSql=[NSString stringWithFormat:@"delete from %@ where msgBeginTime=%@",table,beginTime];
-        if (sqlite3_exec(dataBase, [deleteSql UTF8String], nil, nil, &msg)==SQLITE_OK) {
-            VCLog(@"delete beginTime = %@ ok",beginTime);
-        }else{
-            VCLog(@"error:%s",msg);
-            sqlite3_free(msg);
-        }
-        
-        sqlite3_close(dataBase);
-    }else{
-        VCLog(@"sqlite  。。。");
-    }
-
 }
 
 @end

@@ -11,7 +11,7 @@
 #import "MsgFrame.h"
 
 @implementation MsgDetailCell
-
+@synthesize contentBtn;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {

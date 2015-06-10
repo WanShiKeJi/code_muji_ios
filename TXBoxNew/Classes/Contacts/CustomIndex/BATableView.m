@@ -1,10 +1,15 @@
 //
 //  ABELTableView.m
-//  ABELTableViewDemo
+//  TXBoxNew
 //
-//  Created by abel on 14-4-28.
-//  Copyright (c) 2014年 abel. All rights reserved.
+//  Created by Naron on 15/4/25.
+//  Copyright (c) 2015年 playtime. All rights reserved.
 //
+
+#define indexBoxHeight 16.f //一格索引高
+#define indexBoxWidth 30.f  //一格索引宽
+
+#define centerSquare 64.f   //提示小框宽高
 
 #import "BATableView.h"
 #import "BATableViewIndex.h"
@@ -22,16 +27,14 @@
     if (self) {
         // Initialization code
         
-        
         self.tableView = [[UITableView alloc] initWithFrame:self.bounds style:UITableViewStylePlain];
         self.tableView.showsVerticalScrollIndicator = NO;
         [self addSubview:self.tableView];
         
-        
-        self.tableViewIndex = [[BATableViewIndex alloc] initWithFrame:(CGRect){DEVICE_WIDTH-20,0,20,frame.size.height}];
+        self.tableViewIndex = [[BATableViewIndex alloc] initWithFrame:(CGRect){DEVICE_WIDTH-indexBoxWidth,0,indexBoxWidth,frame.size.height}];
         [self addSubview:self.tableViewIndex];
         
-        self.flotageLabel = [[UILabel alloc] initWithFrame:(CGRect){(self.bounds.size.width - 64 ) / 2,(self.bounds.size.height - 64) / 2,64,64}];
+        self.flotageLabel = [[UILabel alloc] initWithFrame:(CGRect){(self.bounds.size.width - centerSquare ) / 2,(self.bounds.size.height - centerSquare) / 2,centerSquare,centerSquare}];
         self.flotageLabel.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"flotageBackgroud"]];
         self.flotageLabel.alpha = .5;
         self.flotageLabel.hidden = YES;
@@ -50,7 +53,7 @@
     
     self.tableViewIndex.indexes = [self.delegate sectionIndexTitlesForABELTableView:self];
     CGRect rect = self.tableViewIndex.frame;
-    rect.size.height = self.tableViewIndex.indexes.count * 16;
+    rect.size.height = self.tableViewIndex.indexes.count * indexBoxHeight;
     rect.origin.y = (self.bounds.size.height - rect.size.height) / 2;
     self.tableViewIndex.frame = rect;
     
@@ -65,7 +68,7 @@
     
     self.tableViewIndex.indexes = [self.delegate sectionIndexTitlesForABELTableView:self];
     CGRect rect = self.tableViewIndex.frame;
-    rect.size.height = self.tableViewIndex.indexes.count * 16;
+    rect.size.height = self.tableViewIndex.indexes.count * indexBoxHeight;
     rect.origin.y = (self.bounds.size.height - rect.size.height - edgeInsets.top - edgeInsets.bottom) / 2 + edgeInsets.top + 20;
     self.tableViewIndex.frame = rect;
     self.tableViewIndex.tableViewIndexDelegate = self;

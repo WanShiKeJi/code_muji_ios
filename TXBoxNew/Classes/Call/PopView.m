@@ -23,68 +23,50 @@
     
 }
 
--(void)initWithTitle:(NSString *)title firstMsg:(NSString *)fmsg secondMsg:(NSString *)smsg cancelButtonTitle:(NSString *)cancelTitle otherButtonTitles:(NSString *)sureTitle
+-(void)initWithTitle:(NSString *)title label:(NSString *)label cancelButtonTitle:(NSString *)cancelTitle otherButtonTitles:(NSString *)sureTitle
 {
     self.backgroundColor = [UIColor clearColor];
     self.imgv = [[UIImageView alloc] initWithFrame:self.bounds];
-    self.imgv.backgroundColor = [UIColor whiteColor];
+    self.imgv.backgroundColor = RGBACOLOR(246, 246, 246, 1);
     self.imgv.layer.cornerRadius = 5;
     self.imgv.userInteractionEnabled = YES;
     
     
     //标题
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, SELF_WIDTH-5*2, 40)];
+    titleLabel.font = [UIFont systemFontOfSize:18];
     titleLabel.text = title;
     titleLabel.numberOfLines = 0;
     
     titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
     titleLabel.textAlignment = NSTextAlignmentCenter;//居中显示
-    titleLabel.font = [UIFont systemFontOfSize:14];
     [self.imgv addSubview:titleLabel];
     
     //文字
-    //文字
-    for (int i= 0; i<2; i++) {
-        UILabel *label = [[UILabel alloc] init];
-        label.frame = CGRectMake(0, 40, SELF_WIDTH, 20);
-        label.font = [UIFont systemFontOfSize:14];
-        label.text = fmsg;
-        
-        if (i==1) {
-            label.frame = CGRectMake(0, 90, SELF_WIDTH, 20);
-            label.text = smsg;
-        }
-        
-        [self.imgv addSubview:label];
+    UILabel *labela = [[UILabel alloc] init];
+    labela.frame = CGRectMake(5, 40, SELF_WIDTH-10, 20);
+    labela.font = [UIFont systemFontOfSize:14];
+    labela.text = label;
+    [self.imgv addSubview:labela];
     
-    }
-    
-    //第一个输入框
-    self.firstField = [[UITextField alloc] initWithFrame:CGRectMake(0, 60, SELF_WIDTH, 30)];
-    self.firstField.borderStyle = UITextBorderStyleRoundedRect;
-    self.firstField.delegate = self;
-    self.firstField.placeholder = @"abc@163.com";
-    self.firstField.keyboardType = UIKeyboardTypeEmailAddress;
-    [self.firstField becomeFirstResponder];
-    
-    //第二个textField
-    self.secondField = [[UITextField alloc] initWithFrame:CGRectMake(0, 110,SELF_WIDTH, 30)];
+    //textField
+    self.secondField = [[UITextField alloc] initWithFrame:CGRectMake(5, 65,SELF_WIDTH-10, 30)];
     self.secondField.placeholder = @"138 1380 0000";
     self.secondField.keyboardType = UIKeyboardTypeNumberPad;
     self.secondField.borderStyle = UITextBorderStyleRoundedRect;
+    self.secondField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    [self.secondField becomeFirstResponder];
     //设置格式化输入
     self.secondField.numericFormatter = [AKNumericFormatter formatterWithMask:@"*** **** ****" placeholderCharacter:'*'];
 
-    
-    [self.imgv addSubview:self.firstField];
     [self.imgv addSubview:self.secondField];
     //两个按钮
     for (int i= 0; i<2; i++) {
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        button.frame = CGRectMake(SELF_WIDTH/2*i, self.frame.size.height-30, SELF_WIDTH/2, 30);
+        [button setTitleColor:RGBACOLOR(0, 103, 255, 1) forState:UIControlStateNormal];
+        button.frame = CGRectMake(SELF_WIDTH/2*i, self.frame.size.height-40, SELF_WIDTH/2, 40);
         [button setTitle:sureTitle forState:UIControlStateNormal];
-        button.titleLabel.font = [UIFont systemFontOfSize:14];
+        button.titleLabel.font = [UIFont systemFontOfSize:18];
         button.tag = i;
         if (i == 0) {
             [button setTitle:cancelTitle forState:UIControlStateNormal];
@@ -95,9 +77,15 @@
     }
     
     //竖线
-    UILabel *line =[[UILabel alloc] initWithFrame:CGRectMake(SELF_WIDTH/2, self.frame.size.height-28, 1, 25)];
+    UILabel *lineA =[[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height-39, self.frame.size.width, 1)];
+    lineA.backgroundColor = [UIColor blackColor];
+    lineA.alpha = .17;
+    [self.imgv addSubview:lineA];
+    
+    //竖线
+    UILabel *line =[[UILabel alloc] initWithFrame:CGRectMake(SELF_WIDTH/2, self.frame.size.height-38, 1, 39)];
     line.backgroundColor = [UIColor blackColor];
-    line.alpha = .27;
+    line.alpha = .17;
     [self.imgv addSubview:line];
     
     [self addSubview:self.imgv];
@@ -108,12 +96,12 @@
     
     if (btn.tag == 0) {
         
-        [self.delegate resaultsButtonClick:btn firstField:self.firstField secondField:self.secondField];
+        [self.delegate resaultsButtonClick:btn textField:self.secondField];
         VCLog(@"remove");
     }else
     {
         VCLog(@"click sure");
-        [self.delegate resaultsButtonClick:btn firstField:self.firstField secondField:self.secondField];
+        [self.delegate resaultsButtonClick:btn textField:self.secondField];
     }
     
     

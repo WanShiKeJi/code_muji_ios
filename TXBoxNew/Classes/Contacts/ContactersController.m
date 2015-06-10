@@ -15,7 +15,7 @@
 #import "NSString+helper.h"
 #import "BATableView.h"
 #import "MsgDetailController.h"
-#import "MsgDatas.h"
+#import "TXData.h"
 
 @interface ContactersController ()<UISearchBarDelegate,UISearchResultsUpdating,BATableViewDelegate,ABNewPersonViewControllerDelegate,ABPersonViewControllerDelegate,UISearchControllerDelegate>
 {
@@ -23,8 +23,9 @@
     NSMutableDictionary *phoneDic;      //同一个人的手机号码dic，
     NSMutableArray *phoneArray;         //联系人({name:@"",tel:@""},{name:@"",tel:@""})
     NSArray *sortedArray;               //排序后的数组
-    MsgDatas *msgdata;
-    
+    TXData *msgdata;
+    NSMutableArray *zzsArrar;
+    UIView *footv;
 }
 
 @property (strong,nonatomic) UISearchController *searchController;  //实现disPlaySearchBar
@@ -45,7 +46,8 @@
     sectionDic= [[NSMutableDictionary alloc] init];
     phoneDic=[[NSMutableDictionary alloc] init];
     phoneArray = [[NSMutableArray alloc] init];
-    msgdata = [[MsgDatas alloc] init];
+    msgdata = [[TXData alloc] init];
+    zzsArrar =[[NSMutableArray alloc] init];
     
     [self createTableView];
     
@@ -53,10 +55,31 @@
     [self.contactTableView.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     
     self.selectedIndexPath = nil;
-    
     [self initSearchController];
     
     
+}
+-(void)removeTableViewFootView
+{
+    [footv removeFromSuperview];
+}
+-(void)addTableViewFootView
+{
+    footv = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 37)];
+    
+    UILabel *text = [[UILabel alloc] initWithFrame:CGRectMake(0, 5, DEVICE_WIDTH, 25)];
+    text.text = [NSString stringWithFormat:@"共%lu位联系人",(unsigned long)phoneArray.count];
+    text.textAlignment = NSTextAlignmentCenter;
+    text.font = [UIFont systemFontOfSize:16];
+    
+    UILabel *line2 =[[UILabel alloc] initWithFrame:CGRectMake(0, 36, DEVICE_HEIGHT, 1)];
+    line2.backgroundColor = [UIColor grayColor];
+    line2.alpha = .3;
+    
+    [footv addSubview:line2];
+    [footv addSubview:text];
+    self.contactTableView.tableView.tableFooterView = footv;
+
 }
 
 //页面即将展示
@@ -73,11 +96,12 @@
     //通知显示tabBar
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kShowCusotomTabBar object:self]];
     
+    [self addTableViewFootView];
 }
 
 // 创建tableView
 - (void) createTableView {
-    self.contactTableView = [[BATableView alloc] initWithFrame:self.view.bounds];
+    self.contactTableView = [[BATableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT)];
     self.contactTableView.delegate = self;
     [self.view addSubview:self.contactTableView];
 }
@@ -199,6 +223,9 @@
             name = [[NSString alloc] initWithFormat:NSLocalizedString(@"Unknow", nil)];
         }
         
+        //转拼音
+        NSString *namePinYin = [name hanziTopinyin];
+        NSString *nameNum = [namePinYin pinyinTrimIntNumber];
         
         //获取电话号码，通用的，基本的,概括的
         ABMultiValueRef personPhone = ABRecordCopyValue(record, kABPersonPhoneProperty);
@@ -208,19 +235,16 @@
         for (int k = 0; k<ABMultiValueGetCount(personPhone); k++)
         {
             NSString * phone = (__bridge NSString*)ABMultiValueCopyValueAtIndex(personPhone, k);
-            //范围0~3
-            NSRange range=NSMakeRange(0,3);
-            NSString *str=[phone substringWithRange:range];
-            //若前3个字符为+86，从后一位开始取出
-            if ([str isEqualToString:@"+86"]) {
-                phone=[phone substringFromIndex:3];
-            }
+            
             //加入phoneDic中
             [phoneDic setObject:(__bridge id)(record) forKey:[NSString stringWithFormat:@"%@%d",phone,recordID]];
             [tempDic setObject:phone forKey:@"personTel"];//把每一条号码存为key:“personTel”的Value
+            NSString *phoneNum = [NSString stringWithFormat:@"-%@",phone];
+            [tempDic setObject:phoneNum forKey:@"personTelNum"];//-数字号码
             
         }
         [tempDic setObject:name forKey:@"personName"];//把名字存为key:"personName"的Value
+        [tempDic setObject:namePinYin forKey:@"personNameNum"];
         //VCLog(@"tempDictemp：%@",tempDic);
         [phoneArray addObject:tempDic];//把tempDic赋给phoneArray数组
         
@@ -278,6 +302,96 @@
     VCLog(@"sectionDic :%@",sectionDic );
     VCLog(@"sortedArray :%@",sortedArray);
 }
+
+#pragma mark -- tableView..
+//点击单元格
+-(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if ([indexPath isEqual:self.selectedIndexPath] ) {
+        
+        self.selectedIndexPath = nil;
+        
+    }else {
+        
+        self.selectedIndexPath = indexPath;
+    }
+    
+    [tableView beginUpdates];
+    [tableView endUpdates];
+    
+    if (self.searchController.active) {
+        //关闭键盘
+        [self.searchController.searchBar resignFirstResponder];
+        
+    }
+    
+    
+}
+
+//设置cell高度
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if ([indexPath isEqual:self.selectedIndexPath]) {
+        
+        return kCellHeight + 40.f;
+    }
+    
+    return kCellHeight;
+    
+}
+
+/*改变删除按钮的text*/
+-(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return NSLocalizedString(@"Delete", nil);
+}
+
+// 是否可以编辑
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    return NO;
+}
+
+// 支持编辑类型
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    
+    if (editingStyle == UITableViewCellEditingStyleDelete)
+        
+    {
+        NSMutableArray *array = [ [ NSMutableArray alloc ] init ];
+        
+        [ array addObject: indexPath];
+        
+        //移除数组的元素
+        [phoneArray removeObjectAtIndex:indexPath.row];
+        
+        //删除单元格
+        [ self.contactTableView.tableView deleteRowsAtIndexPaths: array withRowAnimation: UITableViewRowAnimationLeft];
+        
+        //排序
+        [self PacketSequencing];
+        
+        //刷新表格数据
+        [self.contactTableView reloadData];
+        
+        //
+        
+        NSString *key=[NSString stringWithFormat:@"%@",sortedArray[indexPath.section]];
+        
+        NSMutableArray *persons=[sectionDic objectForKey:key];
+        //VCLog(@"persons :%@",persons);
+        
+        NSString *str = [[persons objectAtIndex:indexPath.row] objectForKey:@"personName"];
+        
+        VCLog(@"personName:%@",str);
+        
+        //删除通讯录联系人
+        
+    }
+    
+}
+
 
 //返回分区
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -379,7 +493,7 @@
         cell.nameLabel.text = [[persons objectAtIndex:indexPath.row] objectForKey:@"personName"];
         //cell.numberLabel.text = [[persons objectAtIndex:indexPath.row] objectForKey:@"personTel"];
         cell.numberLabel.text = [[[[persons objectAtIndex:indexPath.row] objectForKey:@"personTel"] purifyString] insertStr];
-        VCLog(@"name:%@,number:%@",cell.nameLabel.text,cell.numberLabel.text);
+        //VCLog(@"name:%@,number:%@",cell.nameLabel.text,cell.numberLabel.text);
         
         
     }
@@ -389,7 +503,7 @@
 }
 -(void)msgsBtnClick:(UIButton *)btn
 {
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self ]];
     //进入msgDetail
     UIStoryboard *board = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     MsgDetailController *msgDetail = [board instantiateViewControllerWithIdentifier:@"msgDetail"];
@@ -461,43 +575,6 @@
 }
 
 
-//点击单元格
--(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    
-    if ([indexPath isEqual:self.selectedIndexPath] ) {
-        
-        self.selectedIndexPath = nil;
-        
-    }else {
-        
-        self.selectedIndexPath = indexPath;
-    }
-    
-    [tableView beginUpdates];
-    [tableView endUpdates];
-    
-    if (self.searchController.active) {
-        //关闭键盘
-        [self.searchController.searchBar resignFirstResponder];
-        
-    }
-   
-    
-}
-
-//设置cell高度
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    if ([indexPath isEqual:self.selectedIndexPath]) {
-        
-        return kCellHeight + 40.f;
-    }
-    
-    return kCellHeight;
-    
-}
-
-
 //数据模型
 -(void)setModel{
     
@@ -522,8 +599,18 @@
 -(void) updateSearchResultsForSearchController:(UISearchController *)searchController
 {
     
-    NSString *searchString = [self.searchController.searchBar text];
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    NSString *searchString = [self.searchController.searchBar text];
     //NSPredicate *preicate = [NSPredicate predicateWithFormat:@"(SELF.personName CONTAINS[c] %@) OR (SELF.personTel contains [c] %@)", searchString];
     NSPredicate *preicate = [NSPredicate predicateWithFormat:@"(SELF.personName CONTAINS[c] %@) or (self.personTel contains[c] %@)", searchString,searchString ];
     
@@ -536,114 +623,87 @@
     VCLog(@"searchArray :%@",self.searchsArray);
     VCLog(@"preicate :%@",preicate);
     
+    [self removeTableViewFootView];
     //刷新表格
     [self.searchVC.tableView reloadData];
     [self.contactTableView reloadData];
+     
 }
-
-/*改变删除按钮的text*/
--(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return NSLocalizedString(@"Delete", nil);
+/*
+#pragma mark -- 用户退格输入时
+-(void)deleteTextDidChanged:(NSNotification*)notifi{
+    NSString *lastChar = [[notifi userInfo] valueForKey:@"lastChar"];
+    
+    //退格
+    [self deleteCharWithLastinput:lastChar];
+    [self predictaeData];
+    
 }
-
-// 是否可以编辑
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+#pragma mark -- 用户增加输入时
+-(void)inputTextDidChanged:(NSNotification*)notifi{
     
-    return NO;
-}
-
-// 支持编辑类型
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete)
-        
-    {
-        NSMutableArray *array = [ [ NSMutableArray alloc ] init ];
-        
-        [ array addObject: indexPath];
-        
-        //移除数组的元素
-        [phoneArray removeObjectAtIndex:indexPath.row];
-        
-        //删除单元格
-        [ self.contactTableView.tableView deleteRowsAtIndexPaths: array withRowAnimation: UITableViewRowAnimationLeft];
-        
-        //排序
-        [self PacketSequencing];
-        
-        //刷新表格数据
-        [self.contactTableView reloadData];
-        
-        //
-        
-        NSString *key=[NSString stringWithFormat:@"%@",sortedArray[indexPath.section]];
-        
-        NSMutableArray *persons=[sectionDic objectForKey:key];
-        //VCLog(@"persons :%@",persons);
-        
-        NSString *str = [[persons objectAtIndex:indexPath.row] objectForKey:@"personName"];
-        
-        VCLog(@"personName:%@",str);
-        
-        //删除通讯录联系人
-        
+    NSString *searchText = [[notifi userInfo] valueForKey:@"searchBarText"];
+    NSString *lastChar = [searchText substringWithRange:NSMakeRange(searchText.length-1, 1)];
+    NSString *testString = [NSString stringWithFormat:@"-%@[0-9,A,B,C].*",lastChar];
+    if (zzArray.count <1) {
+        NSMutableString *mstring = [[NSMutableString alloc] initWithFormat:@"%@",testString];
+        [zzArray addObject:mstring];
     }
     
+    NSString *inputString = [NSString stringWithFormat:@"-%@[0-9,A,B,C].*",lastChar];
     
+    VCLog(@"lastchar:%@",lastChar);
+    VCLog(@"searchText:%@",searchText);
+    VCLog(@"inputstring:%@",inputString);
+    //生成zz表达式
+    //输入
+    if (searchText.length>1) {
+        [self zzStringAndArrayInputchar:inputString aChar:lastChar];
+    }
     
+    [self predictaeData];
 }
 
-#pragma mark --删除联系人
-//根据名字以及手机号码删除联系人
--(BOOL)delete:(NSString *)name mobile:(NSString *)pNumber
-{
-    CFErrorRef *error;
+-(void)predictaeData{
     
-    // 1.初始化并创建通讯录对象，记得释放内存
-    //ABAddressBookRef addressBook = ABAddressBookCreate();
-    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, error);
+    if (searchResault.count != 0) {
+        [searchResault removeAllObjects];
+    }
     
-    NSArray *array = (__bridge NSArray *)ABAddressBookCopyArrayOfAllPeople(addressBook);
-    // 3.遍历所有的联系人并修改指定的联系人
-    for (id obj in array) {
-        ABRecordRef people = (__bridge ABRecordRef)obj;
-        //名
-        NSString *ln = (__bridge NSString *)ABRecordCopyValue(people, kABPersonLastNameProperty);
-        //姓
-        NSString *fn = (__bridge NSString *)ABRecordCopyValue(people, kABPersonFirstNameProperty);
-        ABMultiValueRef mv = ABRecordCopyValue(people, kABPersonPhoneProperty);
-        //手机号
-        NSArray *phones = (__bridge NSArray *)ABMultiValueCopyArrayOfAllValues(mv);
-        
-        NSString *s = [[NSString alloc] initWithFormat:@"%@%@",fn,ln];
-        BOOL phoneNumber=NO;
-        for (NSString *p in phones) {
-            //NSString *str = [p iPhoneStandardFormat];
-            // 由于获得到的电话号码可能不符合标准，所以要先将其格式化再比较是否存在
-            if ([p isEqual:pNumber]) {
-                phoneNumber = YES;
-                break;
+    //过滤数据
+    for (NSMutableString *str in zzArray) {
+        NSPredicate *regextestcm = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", str];
+        for (NSDictionary *dict in mutPhoneArray) {
+            //匹配姓名
+            NSString *pnameNum = [dict valueForKey:@"personNameNum"];
+            if ([regextestcm evaluateWithObject:pnameNum]) {
+                [searchResault addObject:dict];
+                
             }
-        }
-        
-        //若找到的名字和号码相匹配，执行删除
-        if ([s isEqualToString:[name trimOfString]] && phoneNumber) {
+            //匹配号码
+            NSString *phoneNum = [dict valueForKey:@"personTelNum"];
+            if ([regextestcm evaluateWithObject:phoneNum]) {
+                [searchResault addObject:dict];
+                
+            }
             
-            ABAddressBookRemoveRecord(addressBook, people, error);
-            
         }
-    }
-    //保存
-    ABAddressBookSave(addressBook, error);
-    // 释放通讯录对象的内存
-    if (addressBook) {
-        CFRelease(addressBook);
     }
     
-    return YES;
+    [self setModel];
+    VCLog(@"searchResault:%@",searchResault);
+    
+    //重新获取数据库获取通话记录
+    //NSMutableArray *array = [sqlite searchInfoFromTable:CALL_RECORDS_TABLE_NAME];
+    //排序
+    //CallRecords = (NSMutableArray *)[[array reverseObjectEnumerator] allObjects];
+    
+    //[self.tableView reloadData];
+    
+    
 }
+
+*/
 
 
 #pragma mark -- 新增联系人

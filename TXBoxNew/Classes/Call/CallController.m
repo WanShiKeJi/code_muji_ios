@@ -6,22 +6,25 @@
 //  Copyright (c) 2015年 playtime. All rights reserved.
 //
 
+#define kRemoveZZArray @"removeZZArray"
+
 #import "CallController.h"
 #import "TXSqliteOperate.h"
 #import "CallingController.h"
 #import <AddressBookUI/AddressBookUI.h>
 #import "NSString+helper.h"
 #import "MsgDatas.h"
-#import "PopView.h"
 #import "MsgDetailController.h"
 #import "TXNavgationController.h"
-#import "PinYin4Objc.h"
 #import "TXTelNumSingleton.h"
 #import "TXKeyView.h"
 #import "CustomTabBarView.h"
 #import "Records.h"
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import <CoreTelephony/CTCarrier.h>
+#import "DiscoveryController.h"
 
-@interface CallController ()<UITextFieldDelegate,ABPersonViewControllerDelegate,ABNewPersonViewControllerDelegate,UIAlertViewDelegate,PopViewDelegate>
+@interface CallController ()<UITextFieldDelegate,ABPersonViewControllerDelegate,ABNewPersonViewControllerDelegate,UIAlertViewDelegate>
 {
     NSMutableArray *CallRecords;
     TXSqliteOperate *sqlite;
@@ -29,9 +32,6 @@
     
     MsgDatas *msgdata;
     UIWebView *webView;
-    UIView *shadeView;  //遮罩层
-    PopView *popview;   //提示框
-    UIAlertView *_alertView; //提示框
     NSUserDefaults *defaults;
     NSMutableArray *mutPhoneArray;
     NSMutableDictionary *phoneDic;      //同一个人的手机号码dic
@@ -39,6 +39,12 @@
     TXTelNumSingleton *singleton;   //获取输入的号码
     NSMutableArray *searchResault;
     NSArray *dataList;
+    DiscoveryController *discoveryCtrol;
+    
+    NSMutableArray *zzArray;
+    NSString *areaString;
+    NSString *opeareString;
+    
 }
 
 - (IBAction)callAnotherPelple:(UIBarButtonItem *)sender;
@@ -52,42 +58,31 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    //键盘活动  键盘出现时
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShow:) name:UIKeyboardDidShowNotification object:nil];
     
     //显示tabbar
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kShowCusotomTabBar object:self]];
+    
     //textInput
     if([self respondsToSelector:@selector(inputTextDidChanged:)]) {
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputTextDidChanged:) name:ktextChangeNotify object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputTextDidChanged:) name:kInputCharNoti object:nil];
+    }
+    // delete
+    if([self respondsToSelector:@selector(deleteTextDidChanged:)]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteTextDidChanged:) name:kDeleteCharNoti object:nil];
+    }
+    
+    if([self respondsToSelector:@selector(callviewWillRefresh)]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callviewWillRefresh) name:kCallViewReloadData object:nil];
     }
     
     //查询数据库获取通话记录
-    NSMutableArray *array = [sqlite searchInfoFrom:CALL_RECORDS_TABLE_NAME];
+    NSMutableArray *array = [sqlite searchInfoFromTable:CALL_RECORDS_TABLE_NAME];
     //排序
     CallRecords = (NSMutableArray *)[[array reverseObjectEnumerator] allObjects];
     [self.tableView reloadData];
-    
+    //VCLog(@"int max:%i",INT_MAX);
 }
 
-//键盘显示
-- (void)keyboardWasShow:(NSNotification*)aNotification
-{
-    NSDictionary* info = [aNotification userInfo];
-    /*
-     NSNumber *duration = [info objectForKey:UIKeyboardAnimationDurationUserInfoKey];
-     VCLog(@"duration:%@",duration);
-     CGRect beginRect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
-     */
-    CGRect endRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    
-    VCLog(@"·······%f",endRect.size.height);
-    [UIView beginAnimations:@"" context:nil];
-    popview.frame =  CGRectMake((DEVICE_WIDTH-PopViewWidth)/2, DEVICE_HEIGHT-PopViewHeight-endRect.size.height, PopViewWidth, PopViewHeight);
-    [UIView setAnimationDuration:.25];
-    [UIView commitAnimations];
-}
 
 -(void)viewDidAppear:(BOOL)animated
 {
@@ -104,11 +99,16 @@
     self.selectedIndexPath = nil;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;//tableview分割线
     
-    //创建提醒对话框
-    _alertView = [[UIAlertView alloc] initWithTitle:nil message:NSLocalizedString(@"Please_enter_the_correct_info", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"Sure", nil) otherButtonTitles:nil, nil];
-    _alertView.delegate = self;
-    [_alertView textFieldAtIndex:0];//获取输入框，在UIAlertViewStyle -> input模式
+    if (![[defaults valueForKey:@"opstate"] intValue]) {
+        UIAlertView *aaa =[[UIAlertView alloc] initWithTitle:@"" message:[NSString stringWithFormat:@"%@",[self getCarrier]] delegate:self cancelButtonTitle:@"n" otherButtonTitles:@"y", nil];
+        [aaa show];
+        [defaults setValue:@"1" forKey:@"opstate"];
+    }
     
+    zzArray =[[NSMutableArray alloc] init];
+    //[sqlite openPhoneArearDatabase];
+    areaString = [[NSString alloc] init];
+    opeareString = [[NSString alloc] init];
     
 }
 
@@ -125,28 +125,182 @@
     singleton = [TXTelNumSingleton sharedInstance];
     searchResault = [[NSMutableArray alloc] init];
     
-    //[self hanziTopinyin];
+    [defaults setValue:@"0" forKey:@"preState"];
 }
 
-
-#pragma mark -- 用户输入时
--(void)inputTextDidChanged:(NSNotification*)notifi{
-    
-    NSPredicate *preicate = [NSPredicate predicateWithFormat:@"(SELF.personName CONTAINS[cd] %@) or (self.personTel contains[cd] %@)", singleton.singletonValue,singleton.singletonValue ];
-    
-    if (searchResault!= nil) {
-        [searchResault removeAllObjects];
-    }
-    
-    //过滤数据
-    searchResault = [NSMutableArray arrayWithArray:[dataList filteredArrayUsingPredicate:preicate]];
-    
-    VCLog(@"searchRes%@",searchResault);
-    VCLog(@"%@",singleton.singletonValue);
-    
-    
+-(void)callviewWillRefresh
+{
     [self.tableView reloadData];
 }
+
+#pragma mark -- 用户退格输入时
+-(void)deleteTextDidChanged:(NSNotification*)notifi{
+    NSString *lastChar = [[notifi userInfo] valueForKey:@"lastChar"];
+    
+    //退格
+    [self deleteCharWithLastinput:lastChar];
+    [self predictaeDataWithState:0];
+    
+}
+#pragma mark -- 用户增加输入时
+-(void)inputTextDidChanged:(NSNotification*)notifi{
+    
+    NSString *searchText = [[notifi userInfo] valueForKey:@"searchBarText"];
+    NSString *lastChar = [searchText substringWithRange:NSMakeRange(searchText.length-1, 1)];
+    //NSString *testString = [NSString stringWithFormat:@"-%@[0-9,A,B,C].*",lastChar];
+    
+    NSString *inputString = [NSString stringWithFormat:@"-%@[0-9,A,B,C]*",lastChar];
+    //生成zz表达式
+    [self zzStringAndArrayInputchar:inputString aChar:lastChar];
+    
+    [self predictaeDataWithState:1];
+}
+
+/**
+ *  @pragma state 输入状态，删除0，增加输入1，
+ */
+-(void)predictaeDataWithState:(int)state{
+    
+    
+    if (searchResault.count != 0) {
+        [searchResault removeAllObjects];
+    }
+    //NSMutableArray *arrayZZMut = [[NSMutableArray alloc] init];
+    
+    //过滤数据
+    for (NSMutableString *str in zzArray) {
+        NSPredicate *regextestcm = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", str];
+        for (NSDictionary *dict in mutPhoneArray) {
+            //匹配姓名
+            NSString *pnameNum = [dict valueForKey:@"personNameNum"];
+            //VCLog(@"pnameNum:%@ ",pnameNum);
+            //VCLog(@"regextestcm-str:%@ ",str);
+            if ([regextestcm evaluateWithObject:pnameNum]) {
+                if (![searchResault containsObject:dict]) {
+                    [searchResault addObject:dict];
+                }
+               
+            }
+            //匹配号码
+            NSString *phoneNum = [dict valueForKey:@"personTelNum"];
+            if ([regextestcm evaluateWithObject:phoneNum]) {
+                if (![searchResault containsObject:dict]) {
+                    [searchResault addObject:dict];
+                }
+
+            }
+            
+        }
+    }
+    
+    
+    [self setModel];
+     VCLog(@"searchResault:%@",searchResault);
+    
+    
+    
+    if (searchResault.count == 0) {
+        if (singleton.singletonValue.length>=7) {
+            areaString = [sqlite searchAreaWithHisNumber:[singleton.singletonValue substringToIndex:7]];
+            VCLog(@"areaString:%@",areaString);
+        }
+        
+        opeareString = [singleton.singletonValue isMobileNumberWhoOperation];
+        
+    }
+    
+    if (state == 0 && singleton.singletonValue.length == 1) {
+        [zzArray removeAllObjects];
+    }
+    
+    [self.tableView reloadData];
+    
+    //重新获取数据库获取通话记录
+    NSMutableArray *array = [sqlite searchInfoFromTable:CALL_RECORDS_TABLE_NAME];
+    //排序
+    CallRecords = (NSMutableArray *)[[array reverseObjectEnumerator] allObjects];
+    [self.tableView reloadData];
+    
+}
+
+
+//数据模型
+-(void)setModel{
+    
+    NSMutableArray *arrayM = [NSMutableArray array];
+    for (NSDictionary *dict in searchResault) {
+        
+        Records *record = [[Records alloc] init];
+        // 给record赋值
+        [record setValuesForKeysWithDictionary:dict];//record:<Records: 0x7fa2f27207c0,personTel: 888-555-1212,personName: John Appleseed>
+        [arrayM addObject:record];
+        
+    }
+    //VCLog(@"arrayM:%@",arrayM);
+    dataList = arrayM;
+    //VCLog(@"arrayM-0:%@",[[arrayM objectAtIndex:0] valueForKey:@"personTel"]);
+    
+}
+
+-(void)zzStringAndArrayInputchar:(NSString *)inputChar aChar:(NSString *)achar
+{
+    
+    if (zzArray.count <1) {
+        NSMutableString *mstring = [[NSMutableString alloc] initWithFormat:@"-%@.*",achar];
+        [zzArray addObject:mstring];
+    }
+    
+    NSMutableArray *latterArray = [[NSMutableArray alloc] init];
+    
+    if (singleton.singletonValue.length>1) {
+        for (NSMutableString *sss in zzArray) {
+            //-1.* -> -1.*-2[0-9].*
+            NSMutableString *str1 = [NSMutableString stringWithFormat:@"%@%@",sss,inputChar];
+            
+            //-1.* -> -12[0-9].*
+            if (sss.length <=14 ) {
+                [sss insertString:achar atIndex:sss.length-2];
+            }else{
+                [sss insertString:achar atIndex:sss.length-12];
+            }
+            
+            
+            [latterArray addObject:str1];
+            [latterArray addObject:sss];
+        }
+        
+        zzArray =latterArray;
+    }
+    
+    
+    VCLog(@"zzArray:%@",zzArray);
+    
+}
+
+-(void)deleteCharWithLastinput:(NSString *)lastinput{
+    
+    
+    NSMutableArray *lArray = [[NSMutableArray alloc] init];
+    if (zzArray.count >1) {
+        
+        for (int i= 0; i<zzArray.count; i++) {
+            if (i%2==0) {
+                NSString *sas = zzArray[i];
+                
+                //NSString *zzs = [sas stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"-%@[0-9,A,B,C]*",lastinput] withString:@""];
+                NSString *zzs = [sas substringToIndex:sas.length-14];
+                if(![lArray containsObject:zzs])
+                    [lArray addObject:zzs];
+            }
+            
+        }
+        
+        zzArray = lArray;
+        VCLog(@"lArray:%@",lArray);
+    }
+    
+}
+
 
 #pragma mark - Table view data source
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -156,10 +310,21 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-    if (singleton.singletonValue.length !=0) {
+    /*
+    if (searchResault.count == 0 && singleton.singletonValue.length>=7) {
+        return 1;
+    }
+    */
+    
+    if (searchResault.count > 0 && singleton.singletonValue.length>=1) {
         return searchResault.count;
     }
-    return [CallRecords count];
+    
+    if (searchResault.count <= 0) {
+        return [CallRecords count];
+    }
+    
+    return 0;
 }
 
 
@@ -168,17 +333,39 @@
     //用CallRecordsCell做初始化
     CallRecordsCell *cell = [tableView dequeueReusableCellWithIdentifier:@"reuseCell" forIndexPath:indexPath];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    //1.是原来的表
-    //更新cell的label，让其显示data对象的itemName
-    TXData *aRecord = [CallRecords objectAtIndex:indexPath.row];
     
     
-        //2.用户输入时
-    if (singleton.singletonValue.length!=0) {
-        Records *record = searchResault[indexPath.row];
+        //用户输入时
+    if (searchResault.count > 0 && singleton.singletonValue.length>=1 ) {
+        Records *record = dataList[indexPath.row];
         cell.hisName.text = record.personName;
-        cell.hisNumber.text = record.personTel;
-    }else{
+        cell.hisNumber.hidden = YES;
+        cell.callDirection.hidden = YES;
+        cell.callLength.hidden = YES;
+        cell.callBeginTime.text = record.personTel;
+        cell.hisHome.hidden = YES;
+        cell.hisOperator.hidden = YES;
+    }/* if (searchResault.count == 0 && singleton.singletonValue.length>=7) {
+        cell.hisName.text = singleton.singletonValue;
+        cell.callBeginTime.text =[NSString stringWithFormat:@"%@ %@",areaString,opeareString] ;
+        cell.hisNumber.hidden = YES;
+        cell.callDirection.hidden = YES;
+        cell.callLength.hidden = YES;
+        cell.hisOperator.hidden = YES;
+        cell.hisHome.hidden = YES;
+    }*/
+    //未输入，显示通话记录
+    if(searchResault.count <= 0 ) {
+        
+        //VCLog(@"CallRecords:%@,indexPath.row:%lu",CallRecords,indexPath.row);
+        TXData *aRecord  = [CallRecords objectAtIndex:indexPath.row];
+
+        
+        cell.callDirection.hidden = NO;
+        cell.callLength.hidden = NO;
+        cell.hisNumber.hidden = NO;
+        cell.hisHome.hidden = NO;
+        cell.hisOperator.hidden = NO;
         cell.hisName.text = aRecord.hisName;
         cell.hisNumber.text = [[aRecord.hisNumber purifyString] insertStr];
         cell.callDirection.image = [self imageForRating:[aRecord.callDirection intValue]];
@@ -186,12 +373,14 @@
         cell.callBeginTime.text = aRecord.callBeginTime;
         cell.hisHome.text = aRecord.hisHome;
         cell.hisOperator.text = aRecord.hisOperator;
-        
+        //没有名字。显示为编辑图标
+        if (cell.hisName.text.length>0) {
+            [cell.PersonButton setImage:[UIImage imageNamed:@"icon_edit"] forState:UIControlStateNormal];
+        }
+     
     }
-    //没有名字。显示为编辑图标
-    if (cell.hisName.text.length!=0) {
-        [cell.PersonButton setImage:[UIImage imageNamed:@"icon_edit"] forState:UIControlStateNormal];
-    }
+    
+    
     [cell.CallButton addTarget:self action:@selector(CallButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     [cell.MsgButton addTarget:self action:@selector(MsgButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     [cell.PersonButton addTarget:self action:@selector(PersonButtonClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -222,14 +411,15 @@
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
     //当前选中行
     NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
+    TXData *mdata = [[TXData alloc] init];
     TXData *aRecord = [CallRecords objectAtIndex:indexPath.row];
-    msgdata.hisName = aRecord.hisName;
-    msgdata.hisNumber = aRecord.hisNumber;
-    msgdata.hisHome = aRecord.hisHome;
+    mdata.hisName = aRecord.hisName;
+    mdata.hisNumber = aRecord.hisNumber;
+    mdata.hisHome = aRecord.hisHome;
     
     UIStoryboard *board = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     MsgDetailController *controller = [board instantiateViewControllerWithIdentifier:@"msgDetail"];
-    controller.datailDatas = msgdata;
+    controller.datailDatas = mdata;
     
     [self.navigationController pushViewController:controller animated:YES];
     
@@ -257,16 +447,19 @@
     
 }
 
-
+#pragma mark -- tableView delegate
 //设置cell高度
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    if ([indexPath isEqual:self.selectedIndexPath]) {
-        
-        return 50 + 50;
-    }
     
-    return 50;
+        if ([indexPath isEqual:self.selectedIndexPath]) {
+            
+            return 50 + 50;
+        }
+        
+        return 50;
+    
+    
     
 }
 
@@ -286,8 +479,8 @@
     {
         //删除数据库的数据
         TXData *aRecord = [CallRecords objectAtIndex:indexPath.row];
-        [sqlite deleteContacterWithNumber:aRecord.hisNumber formTable:CALL_RECORDS_TABLE_NAME];
 
+        [sqlite deleteContacterWithNumber:aRecord.hisNumber formTable:CALL_RECORDS_TABLE_NAME peopleId:nil withSql:DELETE_CALL_RECORD_SQL];
         
         NSMutableArray *array = [ [ NSMutableArray alloc ] init ];
         [array addObject: indexPath];
@@ -333,17 +526,25 @@
 //呼转方法
 - (IBAction)callAnotherPelple:(UIBarButtonItem *)sender
 {
-    //获取拇机,email号码,
+    //BOOL loginstate = [defaults valueForKey:LOGIN_STATE];
+    //是否登录？
+    
+    
+    //获取拇机号码,
     NSString *phoneNumber = [defaults valueForKey:muji_bind_number];
-    NSString *emailNumber = [defaults valueForKey:email_number];
     
     //已有number和email
-    if (phoneNumber.length>0 && emailNumber.length>0 ) {
+    if (phoneNumber.length>0 ) {
         //获取呼转状态
         [self getCallDivert];
     }else
     {   //没有则弹框提示
-        [self addShadeAndAlertView];
+        UIAlertView *isNoMujiAlert = [[UIAlertView alloc] initWithTitle:@"想要呼转到拇机？" message:@"请到【发现】中【登录】,然后【配置】拇机号码" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"不OK", nil];
+        isNoMujiAlert.tag =1100;
+        [isNoMujiAlert show];
+        
+        
+        //[self addShadeAndAlertView];
     }
 
 }
@@ -351,134 +552,93 @@
 -(void)getCallDivert
 {
     NSString *number = [defaults valueForKey:muji_bind_number];
-    if ([[defaults valueForKey:call_divert] intValue]) {
+    if ([[defaults valueForKey:call_divert_state] intValue]) {
         //已呼转,弹框提示，到拇机123456789321的呼转取消？
         
         UIAlertView *aliert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Alerts", nil) message:[NSString stringWithFormat:@"%@ %@?",NSLocalizedString(@"Cancel_Call_Forwarding", nil),number] delegate:self cancelButtonTitle:NSLocalizedString(@"No", nil) otherButtonTitles:NSLocalizedString(@"Yes", nil), nil];
         aliert.delegate = self;
-        aliert.tag =100;
+        aliert.tag =1000;
         [aliert show];
         
     }else{
         //未呼转,弹框提示，手机呼转到拇机123456789321？
         UIAlertView *aliert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Alerts", nil) message:[NSString stringWithFormat:@"%@ %@?",NSLocalizedString(@"Call_Forwarding", nil),number] delegate:self cancelButtonTitle:NSLocalizedString(@"No", nil) otherButtonTitles:NSLocalizedString(@"Yes", nil), nil];
         aliert.delegate = self;
-        aliert.tag =101;
+        aliert.tag =1001;
         [aliert show];
     }
 
 }
 
-#pragma mark -- 弹出框
--(void)addShadeAndAlertView
-{
-    //透明层
-    shadeView =[[UIView alloc] initWithFrame:self.view.window.bounds];
-    shadeView.backgroundColor = [UIColor grayColor];//self.view.window.bounds
-    shadeView.alpha = .5;
-    [self.view.window addSubview:shadeView];
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(shadeViewTap:)];
-    tap.numberOfTapsRequired = 1;
-    [shadeView addGestureRecognizer:tap];
-    
-    
-    //pop
-    popview = [[PopView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-PopViewWidth)/2, DEVICE_HEIGHT-PopViewHeight-216, PopViewWidth, PopViewHeight)];
-    popview.delegate = self;
-    [popview initWithTitle:NSLocalizedString(@"The_Call_Forwarding_was_get_info", nil) firstMsg:NSLocalizedString(@"E-mail", nil) secondMsg:NSLocalizedString(@"MuJi-Number", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:NSLocalizedString(@"Sure", nil)];
-    
-    
-    [self.view.window addSubview:popview];
-}
 
--(void)shadeViewTap:(UIGestureRecognizer *)recongnizer
-{
-    VCLog(@"-------tap");
-    
-    [shadeView removeFromSuperview];
-    [popview removeFromSuperview];
-}
-
-#pragma mark-- popview delegate
--(void)resaultsButtonClick:(UIButton *)button firstField:(UITextField *)ffield secondField:(UITextField *)sfield
-{
-    //获取输入的text
-    NSString *email =ffield.text;
-    NSString *number = [sfield.text trimOfString];
-    //取消
-    if (button.tag == 0) {
-        
-        [shadeView removeFromSuperview];
-        [popview removeFromSuperview];
-    }
-    //sure按钮
-    if (button.tag == 1) {
-        if (email.length<=0 || number.length<=0 || ![number isValidateMobile:number]) {
-            [_alertView show];
-        }else
-        {
-            //本地保存数据
-            [defaults setValue:email forKey:email_number];
-            [defaults setValue:number forKey:muji_bind_number];
-            
-            //上传到服务器
-            /*
-            AVUser *auser = [AVUser user];
-            auser.username = sfield.text;//号码
-            auser.password = @"";
-            auser.email = ffield.text;//邮箱
-            
-            [auser signUpInBackgroundWithBlock:^(BOOL suc,NSError *error){
-                
-                if (suc) {
-                    VCLog(@"sign suc");
-                }else{
-                    VCLog(@"reg error-code:%ld errorInfo:%@",(long)error.code,error.localizedDescription);
-                    UIAlertView *alert =[[UIAlertView alloc] initWithTitle:error.localizedDescription message:nil delegate:self cancelButtonTitle:@"是" otherButtonTitles:nil, nil];
-                    alert.delegate = self;
-                    [alert show];
-                }
-            }];
-            */
-             
-            VCLog(@"save-->email:%@,number:%@",email,number);
-            [shadeView removeFromSuperview];
-            [popview removeFromSuperview];
-            
-            [self getCallDivert];
-        }
-    }
-    
-    
-}
 
 #pragma mark -- AlertView Delegate
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     NSMutableString *str;
+    NSDate *date = [NSDate date];
+    NSDateFormatter *dfmt = [[NSDateFormatter alloc] init];
+    dfmt.dateFormat = @"MMddHHmmss";
+    NSString *time;
+
     /****/
-    if (alertView.tag == 100) {
+    if (alertView.tag == 1000) {
         if (buttonIndex == 1) {
             //取消呼转
-            str = [[NSMutableString alloc] initWithFormat:@"**21*tel://%@#",[defaults valueForKey:muji_bind_number]];
+            str = [self cancelCallFrowardingWithNumber: [defaults valueForKey:muji_bind_number]];
             
             //设置状态为0
-            [defaults setValue:@"0" forKey:call_divert];
+            [defaults setValue:@"0" forKey:call_divert_state];
+            //设定呼转结束时间
+            time = [dfmt stringFromDate:date ];
+            
+            //计算时长
+            [self intervalFromStartDate:[defaults valueForKey:CallForwardStartTime] toTheEndDate:time];
+            
+            //上传
+            
+            
+            
+            
+            
+            
+            
         }
     }
     
     
     /****/
-    if (alertView.tag == 101) {
+    if (alertView.tag == 1001) {
         if (buttonIndex == 1) {
             //设置呼转,
-            str = [[NSMutableString alloc] initWithFormat:@"**21*tel://%@#",[defaults valueForKey:muji_bind_number]];
+            str = [self setCallForwardingWithNumber:[defaults valueForKey:muji_bind_number]];
             //设置状态为1
-            [defaults setValue:@"1" forKey:call_divert];
+            [defaults setValue:@"1" forKey:call_divert_state];
+            //设定呼转开始时间
+            time = [dfmt stringFromDate:date ];
+            [defaults setValue:time forKey:CallForwardStartTime];
 
         }
     }
+    
+    if (alertView.tag == 1100) {
+        if (buttonIndex == 0) {
+            //跳转到-发现
+            //disvyCtorl
+            UIStoryboard *board = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            discoveryCtrol = [board instantiateViewControllerWithIdentifier:@"disvyCtorl"];
+            
+            [self.navigationController pushViewController:discoveryCtrol animated:YES];
+            
+            //隐藏tabbar
+            [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kKeyboardAndTabViewHide object:self]];
+            
+            
+        }
+    }
+    
+    
+    
     if (str.length>0) {
         // 呼叫
         // 不要将webView添加到self.view，如果添加会遮挡原有的视图
@@ -494,6 +654,101 @@
     }
     
 }
+//计算两个点时间差
+- (NSString *)intervalFromStartDate:(NSString *)sDate toTheEndDate:(NSString *)endDate
+{
+    NSString *string;
+    int startTime = [sDate intValue];//max 1231235959
+    int endTime = [endDate intValue];
+    
+    int duringTime = endTime - startTime;
+    
+    string = [NSString stringWithFormat:@"%d",duringTime];
+    
+    VCLog(@"string:%@",string);
+    //VCLog(@"int max:%i",INT_MAX);//2147483647
+    return string;
+}
+
+//设置开通呼转短号
+-(NSMutableString *)setCallForwardingWithNumber:(NSString *)string
+{
+    NSMutableString *str;
+    //cmcc
+    if ([[self getCarrier] isEqualToString:China_Mobile]) {
+        str = [[NSMutableString alloc] initWithFormat:@"**21*tel://%@#",string];
+    }
+    //unicom
+    if ([[self getCarrier] isEqualToString:China_Unicom]) {
+        str = [[NSMutableString alloc] initWithFormat:@"**21*tel://%@*11#",[defaults valueForKey:muji_bind_number]];
+    }
+    //telecom
+    if ([[self getCarrier] isEqualToString:China_Telecom]) {
+        str = [[NSMutableString alloc] initWithFormat:@"*72tel://%@",[defaults valueForKey:muji_bind_number]];
+    }
+    
+    return str;
+}
+
+//设置取消呼转短号
+-(NSMutableString *)cancelCallFrowardingWithNumber:(NSString *)string
+{
+    NSMutableString *str;
+    //cmcc
+    if ([[self getCarrier] isEqualToString:China_Mobile]) {
+        str = [[NSMutableString alloc] initWithFormat:@"tel://##21#"];
+    }
+    //unicom
+    if ([[self getCarrier] isEqualToString:China_Unicom]) {
+        str = [[NSMutableString alloc] initWithFormat:@"tel://##21#"];
+    }
+    //telecom
+    if ([[self getCarrier] isEqualToString:China_Telecom]) {
+        str = [[NSMutableString alloc] initWithFormat:@"tel://*720"];
+    }
+
+
+    return str;
+}
+
+- (NSString*)getCarrier
+{
+    //获取本机运营商
+    CTTelephonyNetworkInfo *tInfo = [[CTTelephonyNetworkInfo alloc] init];
+    CTCarrier *carrier = [tInfo subscriberCellularProvider];
+    NSString * mcc = [carrier mobileCountryCode];//国家码406
+    NSString * mnc = [carrier mobileNetworkCode];//网络码
+    if (mnc == nil || mnc.length <1 || [mnc isEqualToString:@"SIM Not Inserted"] ) {
+        return @"Unknown";
+    }else {
+        if ([mcc isEqualToString:@"460"]) {
+            NSInteger MNC = [mnc intValue];
+            switch (MNC) {
+                case 00:
+                case 02:
+                case 07:
+                    return China_Mobile;
+                    break;
+                case 01:
+                case 06:
+                    return China_Unicom;
+                    break;
+                case 03:
+                case 05:
+                    return China_Telecom;
+                    break;
+                case 20:
+                    return China_TieTong;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    
+    return @"Unknown";
+}
+
 
 #pragma mark-- 获取通讯录联系人
 -(NSMutableArray*)loadContacts
@@ -565,6 +820,9 @@
         }
         
         
+        NSString *namePinYin = [name hanziTopinyin];
+        NSString *nameNum = [namePinYin pinyinTrimIntNumber];//转数字
+        
         //获取电话号码，通用的，基本的,概括的
         ABMultiValueRef personPhone = ABRecordCopyValue(record, kABPersonPhoneProperty);
         //记录在底层数据库中的ID号。具有唯一性
@@ -573,67 +831,30 @@
         for (int k = 0; k<ABMultiValueGetCount(personPhone); k++)
         {
             NSString * phone = (__bridge NSString*)ABMultiValueCopyValueAtIndex(personPhone, k);
-            //范围0~3
-            NSRange range=NSMakeRange(0,3);
-            NSString *str=[phone substringWithRange:range];
-            //若前3个字符为+86，从后一位开始取出
-            if ([str isEqualToString:@"+86"]) {
-                phone=[phone substringFromIndex:3];
-            }
             //加入phoneDic中
             [phoneDic setObject:(__bridge id)(record) forKey:[NSString stringWithFormat:@"%@%d",phone,recordID]];
             [tempDic setObject:phone forKey:@"personTel"];//把每一条号码存为key:“personTel”的Value
             
+            NSString *phoneNum = [NSString stringWithFormat:@"-%@",phone];
+            [tempDic setObject:phoneNum forKey:@"personTelNum"];//-数字号码
+            //VCLog(@"phoneNum:%@",phoneNum);
+            
         }
         [tempDic setObject:name forKey:@"personName"];//把名字存为key:"personName"的Value
+        [tempDic setObject:nameNum forKey:@"personNameNum"];//把数字名字保存
+        
         //VCLog(@"tempDictemp：%@",tempDic);
         [mutPhoneArray addObject:tempDic];//把tempDic赋给phoneArray数组
         
     }
     VCLog(@"mutPhoneArray：%@",mutPhoneArray);
     
-    [self setModel];
+    //[self setModel];
     return mutPhoneArray;
     
 }
 
-//数据模型
--(void)setModel{
-    
-    NSMutableArray *arrayM = [NSMutableArray array];
-    for (NSDictionary *dict in mutPhoneArray) {
-        
-        Records *record = [[Records alloc] init];
-        // 给record赋值
-        [record setValuesForKeysWithDictionary:dict];//record:<Records: 0x7fa2f27207c0,personTel: 888-555-1212,personName: John Appleseed>
-        [arrayM addObject:record];
-        
-    }
-    VCLog(@"arrayM:%@",arrayM);
-    dataList = arrayM;
-    //VCLog(@"arrayM-0:%@",[[arrayM objectAtIndex:0] valueForKey:@"personTel"]);
-}
 
-#pragma mark -- 汉字转拼音
--(void)hanziTopinyin{
-    
-    HanyuPinyinOutputFormat *outputFormat =[[HanyuPinyinOutputFormat alloc] init];
-    [outputFormat setToneType:ToneTypeWithoutTone];//声调
-    [outputFormat setVCharType:VCharTypeWithV];
-    [outputFormat setCaseType:CaseTypeLowercase];//大小写
-    
-    NSMutableArray *arr = [[NSMutableArray alloc] initWithObjects:@"你好",@"大家好",@"李显示",@"我在", nil];
-    NSMutableArray *arr2 =[[NSMutableArray alloc] init];
-    for (int i=0; i<arr.count; i++) {
-        NSString *outputPinyin = [PinyinHelper toHanyuPinyinStringWithNSString:arr[i] withHanyuPinyinOutputFormat:outputFormat withNSString:@""];
-        VCLog(@"outputPinyin:%@",outputPinyin);
-        [arr2 addObject:outputPinyin];
-        
-    }
-    VCLog(@"arr:%@",arr2);
-    
-    
-}
 
 #pragma mark -- 跳转到添加联系人
 //跳转到add联系人
@@ -691,7 +912,16 @@
     return NO;
 }
 
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    //移除通知
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kInputCharNoti object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kDeleteCharNoti object:nil];
 
+    
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

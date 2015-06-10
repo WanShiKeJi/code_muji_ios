@@ -15,7 +15,6 @@
     UIView *blackMask;//那层黑面罩
     
     UIImageView *lastScreenShotView;//截图
-    
 }
 
 @property (nonatomic,retain) UIView *backgroundView;//背景
@@ -43,7 +42,7 @@
     
     //是否开始拖动
     isMoving = NO;
-
+    
 }
 
 //拖动手势

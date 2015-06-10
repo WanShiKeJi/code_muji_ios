@@ -9,14 +9,22 @@
 #import "BLEDevicesController.h"
 #import "BLEDeviceCell.h"
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "TXBLEOperation.h"
+#import "TXSqliteOperate.h"
 
 #define UUID_MY @"68753A44-4D6F-1226-9C60-0050E4C00067"
 #define UUIDSTR_TEST_SERVICE @"FFE0"
 #define UUIDSTR_TEST_READC @"READ"
 #define UUIDSTR_TEST_WRITEC @"WRITE"
 
-@interface BLEDevicesController ()<CBCentralManagerDelegate,CBPeripheralDelegate>
+#define kFilePath [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject]
 
+@interface BLEDevicesController ()<CBCentralManagerDelegate,CBPeripheralDelegate>
+{
+    NSUserDefaults *udefaults;
+    TXBLEOperation *bleOP;
+    TXSqliteOperate *txsqlite;
+}
 @property (strong,nonatomic) CBCentralManager *manager;
 @property (strong,nonatomic) NSMutableArray *peripheralArray;
 @property (strong,nonatomic) CBPeripheral *peripheral;
@@ -28,6 +36,7 @@
 @property (strong,nonatomic) UISwitch *switchs;
 @property (assign,nonatomic) int times;
 @property (strong,nonatomic) NSString *strings;
+
 @end
 
 @implementation BLEDevicesController
@@ -42,6 +51,9 @@
     [super viewDidLoad];
     self.title = NSLocalizedString(@"Device", nil);
     
+    udefaults = [NSUserDefaults standardUserDefaults];
+    bleOP =[[TXBLEOperation alloc] init];
+    txsqlite = [[TXSqliteOperate alloc] init];
     // BLE
     [self createBLECentralManager];
     
@@ -66,6 +78,10 @@
     [self.peripheralArray addObject:@"2"];
     
     self.strings = [NSString stringWithFormat:NSLocalizedString(@"Search_device", nil)];
+    
+    //
+    NSString *sp = @"13322227777";
+    [bleOP getMessageFromMuji:sp msgContent:@"bqwedqr9oitreoiore468"];
     
     
 }
@@ -183,7 +199,7 @@
     
     for (CBService *service in peripheral.services)
     {
-        NSLog(@"Service found with UUID: %@", service.UUID);
+        NSLog(@"Service found with service UUID: %@", service.UUID);
         if ([service.UUID isEqual:[CBUUID UUIDWithString:UUIDSTR_TEST_SERVICE]])
         {
             [peripheral discoverCharacteristics:nil forService:service];//返回对应的characteristics
@@ -258,6 +274,12 @@
 -(void)readChar:(NSData *)data
 {
     VCLog(@"data:%@",data);
+    
+    NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    //调用BLEOperation
+    [bleOP getMessageFromMuji:@"13322224444" msgContent:@"qw6g54erhg89e4h6sr4jsj64j4sf64h6erh46"];
+    
+    
 }
 
 //断开连接

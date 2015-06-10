@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MsgDatas.h"
+#import "TXData.h"
 #import "HPGrowingTextView.h"
 
 @interface MsgDetailController : UIViewController<HPGrowingTextViewDelegate>
 
-@property (nonatomic,strong) MsgDatas *datailDatas;
+@property (nonatomic,strong) TXData *datailDatas;
 
 @end

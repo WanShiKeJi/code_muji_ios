@@ -8,6 +8,7 @@
 
 #import "TXCallAction.h"
 #import "TXGeneral+helper.h"
+#import "NSString+helper.h"
 
 @implementation TXCallAction
 @synthesize data,txSqlite,startDate;
@@ -85,7 +86,7 @@
 {
     //时间格式
     NSDateFormatter *dateFormate = [[NSDateFormatter alloc] init];
-    [dateFormate setDateFormat:@"yy/MM/dd HH:mm"];
+    [dateFormate setDateFormat:@"yy/M/d HH:mm"];
     [dateFormate setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"]];//中国
     //开始时间
     NSString *strDate = [dateFormate stringFromDate:date];//sreDate:如1503261130
@@ -127,12 +128,18 @@
     
     //运营商
     NSString *strOperators = [[NSString alloc] init];
-    TXGeneral_helper *general = [[TXGeneral_helper alloc] init];
-    strOperators = [general isMobileNumber:hisNumber];
+    strOperators = [TXGeneral_helper isMobileNumber:hisNumber];
     
     //归属地
     NSString *strAddress = [[NSString alloc] init];
-    strAddress = @"";
+    if (hisNumber.length >=7) {
+        
+        strAddress = [txSqlite searchAreaWithHisNumber:[[hisNumber purifyString] substringToIndex:7]];
+        
+    }else{
+        strAddress = @"";
+    }
+    
     
     //data.tel_id =singleton.telID;//不需要存id，
     data.hisNumber = strNunmber;
@@ -143,7 +150,7 @@
     data.callDirection = direction;
     data.callLength = strCallLength;
     
-    [txSqlite addInfo:data into:CALL_RECORDS_TABLE_NAME];
+    [txSqlite addInfo:data inTable:CALL_RECORDS_TABLE_NAME withSql:CALL_RECORDS_ADDINFO_SQL];
 }
 
 // 时间转字符串，

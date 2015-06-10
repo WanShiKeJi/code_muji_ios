@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HPGrowingTextView.h"
 
 @interface NewMsgController : UIViewController
 

@@ -10,19 +10,27 @@
 #import "Message.h"
 #import "MsgFrame.h"
 #import "MsgDetailCell.h"
+#import "TXSqliteOperate.h"
+#import "EditView.h"
 
-@interface MsgDetailController ()<UITableViewDataSource,UITableViewDelegate,UITextViewDelegate>
+@interface MsgDetailController ()<UITableViewDataSource,UITableViewDelegate,UITextViewDelegate,UIGestureRecognizerDelegate,EditViewDelegate,ChangeRightMarginDelegate>
 {
-    NSMutableArray  *allMsgFrame;
-    NSArray *array;
+    TXSqliteOperate *txsqlite;
+    UILongPressGestureRecognizer *longPress;
+    EditView *editView;
+    NSMutableArray *selectArray;
+    NSMutableArray *indexpathArray;
 }
+@property (strong, nonatomic) NSMutableArray *detailArray;
+@property (strong, nonatomic) NSMutableArray *allMsgFrame;
+
 @property (nonatomic,strong) UILabel *nameLabel;//姓名
 @property (nonatomic,strong) UILabel *arearLabel;//号码归属地
 
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *callBtn;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *callOutBtn;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *contactsInfoBtn;
 
-- (IBAction)callBtn:(UIBarButtonItem *)sender;
+- (IBAction)callOutBtn:(UIBarButtonItem *)sender;
 - (IBAction)ContactsInfo:(UIBarButtonItem *)sender;
 
 @property (nonatomic,strong) UITableView *tableview;
@@ -41,11 +49,20 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
     
+    self.detailArray =[txsqlite searchARecordWithNumber:self.datailDatas.hisNumber fromTable:MESSAGE_RECEIVE_RECORDS_TABLE_NAME withSql:SELECT_A_CONVERSATION_SQL];
+    VCLog(@"self.detailArray %@",self.detailArray);
+    [self getResouce];
+    [self jumpToLastRow];
+    [self.tableview reloadData];
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    txsqlite =[[TXSqliteOperate alloc] init];
+    self.detailArray = [[NSMutableArray alloc] init];
+    selectArray = [[NSMutableArray alloc] init];
+    indexpathArray = [[NSMutableArray alloc] init];
     VCLog(@"datailDatas:%@",self.datailDatas);
     
     // 显示左边按钮
@@ -54,24 +71,21 @@
     
     self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, -20, 150, 20)];
     self.nameLabel.font = [UIFont systemFontOfSize:18];
-    self.nameLabel.text = self.datailDatas.hisName;
+    if (self.datailDatas.hisName.length>0) {
+        self.nameLabel.text = self.datailDatas.hisName;
+    }
+    
     self.nameLabel.textColor = [UIColor whiteColor];
     
     self.arearLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 1, 230, 20)];
-    if (self.datailDatas.hisNumber.length>0 && self.datailDatas.hisHome.length==0) {
-        self.arearLabel.text = [NSString stringWithFormat:@"< %@",self.datailDatas.hisNumber];
-    }else if(self.datailDatas.hisNumber.length>0 && self.datailDatas.hisHome.length>0)
-    {
-        self.arearLabel.text = [NSString stringWithFormat:@"< %@%@",self.datailDatas.hisNumber,self.datailDatas.hisHome];
-        
-    }else
-    {
-        self.arearLabel.text = [NSString stringWithFormat:@"< back"];
-    }
+    [self setArearLabelTitle];
     self.arearLabel.textColor = [UIColor whiteColor];
     
+    [self.callOutBtn setImage:[UIImage imageNamed:@"actionbar_call_hub32"]];
+    
+    
     //注册手势
-    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(initRecognizer:)];
+    UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(initMsgSwipeRecognizer:)];
     swipe.direction = UISwipeGestureRecognizerDirectionDown;
     [self.tableview addGestureRecognizer:swipe];
     [self.view addGestureRecognizer:swipe];
@@ -86,53 +100,190 @@
     
     self.contactsInfoBtn.customView = view;
     
-    _tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-45)];
+    _tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT)];
     _tableview.separatorStyle = UITableViewCellSeparatorStyleNone;
     _tableview.delegate = self;
     _tableview.dataSource = self;
+    _tableview.allowsSelection = NO;//选中某一行cell时，不作任何显示
+    [_tableview flashScrollIndicators ];
+    
     [self.view addSubview:_tableview];
     
     [self initInputView];
     [self initKeyBoardNotif];
     
-    [self getResouce];
-    //滚动到当前信息
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:array.count-1 inSection:0];
-    [self.tableview scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    
+    //编辑时显示
+    editView =[[EditView alloc] initWithFrame:CGRectMake(0, DEVICE_HEIGHT, DEVICE_WIDTH, 50)];
+    editView.backgroundColor = [UIColor whiteColor];
+    editView.delegate  =self;
+    [self.view addSubview:editView];
+    
+    
+}
+
+
+
+-(BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+    return (action ==@selector(copy:));
+}
+-(void)copy:(id)sender
+{
+    VCLog(@"xx");
+}
+
+#pragma  mark --EditViewDelegate
+
+-(void)buttonClickAndChanged:(UIButton *)button
+{
+    if (button.tag == 2000) {
+        VCLog(@"copys");
+    }
+    
+    if (button.tag == 2001) {
+        [self shareContent];
+    }
+    
+    if (button.tag == 2002) {
+        [self deleteButtonClick:button];
+    }
+}
+
+-(void)shareContent
+{
+    VCLog(@"share");
+}
+
+
+-(void)deleteButtonClick:(UIButton *)button
+{
+    //删除选中的条目
+    //数据库
+    for (NSArray *arr in selectArray) {
+        [txsqlite deleteContacterWithNumber:arr[0] formTable:MESSAGE_RECEIVE_RECORDS_TABLE_NAME peopleId:arr[1] withSql:DELETE_MESSAGE_RECORD_SQL];
+    }
+    //重新获取数据
+    self.detailArray =[txsqlite searchARecordWithNumber:self.datailDatas.hisNumber fromTable:MESSAGE_RECEIVE_RECORDS_TABLE_NAME withSql:SELECT_A_CONVERSATION_SQL];
+    //取消选中
+    [self cancelCheckCell];
+    //
+    //[self.tableview beginUpdates];
+    //[self.tableview endUpdates];
+    
+    [self.tableview reloadData];
+    
+}
+
+//
+-(void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [indexpathArray removeLastObject];
+    if (indexpathArray.count <= 0) {
+        [editView.copysButton setEnabled:NO];
+        [editView.sharesButton setEnabled:NO];
+        [editView.deleteButton setEnabled:NO];
+        
+    }
+    
+    VCLog(@"did deselect");
+}
+
+//选中cell
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    VCLog(@"indepath.row:%ld",(long)indexPath.row);
+    
+    //获取选中的数据
+    NSString *msgsender = [self.detailArray[indexPath.row] msgSender];
+    NSString *peopleId = [NSString stringWithFormat:@"%d",[self.detailArray[indexPath.row] peopleId]];
+    NSArray *checkDatas=[[NSArray alloc] initWithObjects:msgsender,peopleId, nil];
+    
+    [selectArray addObject:checkDatas];
+    [indexpathArray addObject:indexPath];
+    
+    if (indexpathArray.count >0) {
+        [editView.copysButton setEnabled:YES];
+        [editView.sharesButton setEnabled:YES];
+        [editView.deleteButton setEnabled:YES];
+
+    }
+    
+    
+    
+}
+// 允许编辑
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    /*
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        
+        
+        
+        
+        NSMutableArray *array = [ [ NSMutableArray alloc ] init ];
+        
+        [ array addObject: indexPath];
+        
+        [self.detailArray removeObjectAtIndex:indexPath.row];//移除数组的元素
+        
+        
+        [tableView deleteRowsAtIndexPaths:array withRowAnimation:UITableViewRowAnimationFade];
+    }
+     */
+}
+
+
+-(void)setArearLabelTitle
+{
+    if (self.datailDatas.hisNumber.length>0 && self.datailDatas.hisHome.length==0) {
+        self.arearLabel.text = [NSString stringWithFormat:@"< %@",self.datailDatas.hisNumber];
+    }else if(self.datailDatas.hisNumber.length>0 && self.datailDatas.hisHome.length>0)
+    {
+        self.arearLabel.text = [NSString stringWithFormat:@"< %@%@",self.datailDatas.hisNumber,self.datailDatas.hisHome];
+        
+    }else
+    {
+        self.arearLabel.text = [NSString stringWithFormat:@"< back"];
+    }
+
 }
 
 -(void) getResouce
 {
-    self.tableview.allowsSelection = NO;
-    array = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"messages" ofType:@"plist"]];
-    
-    allMsgFrame = [NSMutableArray array];
+   
+    self.allMsgFrame = [[NSMutableArray alloc] init];
     NSString *previousTime = nil;
-    for (NSDictionary *dict in array) {
+    
+    for (TXData *data in self.detailArray) {
         
         MsgFrame *messageFrame = [[MsgFrame alloc] init];
+        messageFrame.delegate = self;
         Message *message = [[Message alloc] init];
-        message.dict = dict;
-        messageFrame.showTime = ![previousTime isEqualToString:message.time];
+        
+        message.data = data;
+        messageFrame.showTime = 1;//![previousTime isEqualToString:message.time];
         messageFrame.message = message;
         previousTime = message.time;
+       
+        [self.allMsgFrame addObject:messageFrame];
         
-        [allMsgFrame addObject:messageFrame];
     }
+    
+    //[self.tableview reloadData];
 }
 
-#pragma --mark 给数据源增加内容
+#pragma --mark 给数据源增加内容-自己发送的内容
 - (void)addMessageWithContent:(NSString *)content time:(NSString *)time{
     
     MsgFrame *mf = [[MsgFrame alloc] init];
     Message *msg = [[Message alloc] init];
     msg.content = content;
     msg.time = time;
-    //msg.icon = @"icon01.png";
     msg.type = MessageTypeMe;
     mf.message = msg;
     
-    [allMsgFrame addObject:mf];
+    [self.allMsgFrame addObject:mf];
 }
 
 -(void)initKeyBoardNotif{
@@ -151,35 +302,29 @@
     
     [[notif.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue: &keyboardBounds];
     NSNumber *duration = [notif.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
-    NSNumber *curve = [notif.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey];
+    //NSNumber *curve = [notif.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey];
     
-    // Need to translate the bounds to account for rotation.
     keyboardBounds = [self.view convertRect:keyboardBounds toView:nil];
     
-    // get a rect for the textView frame
     CGRect containerFrame = self.inputView.frame;
     containerFrame.origin.y = self.view.bounds.size.height - (keyboardBounds.size.height + containerFrame.size.height);
-    // animations settings
+
     [UIView beginAnimations:nil context:NULL];
     [UIView setAnimationBeginsFromCurrentState:YES];
     [UIView setAnimationDuration:[duration doubleValue]];
-    [UIView setAnimationCurve:[curve intValue]];
+    //[UIView setAnimationCurve:[curve intValue]];
     
-    // set views with new info
     self.inputView.frame = containerFrame;
     
     CGRect rect = [notif.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    self.tableview.frame = CGRectMake(0, -rect.size.height, DEVICE_WIDTH, DEVICE_HEIGHT-45);
+    self.tableview.frame = CGRectMake(0,0 , DEVICE_WIDTH, DEVICE_HEIGHT-rect.size.height);//-rect.size.height
+    [self jumpToLastRow];
     
-    // commit animations
     [UIView commitAnimations];
     
 }
 
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    
-}
+
 #pragma mark - 键盘隐藏响应函数
 -(void)keyboardHiddenNotif:(NSNotification*)notif{
     
@@ -187,22 +332,17 @@
     NSNumber *duration = [notif.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
     NSNumber *curve = [notif.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey];
     
-    // get a rect for the textView frame
     CGRect containerFrame = self.inputView.frame;
     containerFrame.origin.y = self.view.bounds.size.height - containerFrame.size.height;
     
-    // animations settings
     [UIView beginAnimations:nil context:NULL];
     [UIView setAnimationBeginsFromCurrentState:YES];
     [UIView setAnimationDuration:[duration doubleValue]];
     [UIView setAnimationCurve:[curve intValue]];
     
-    // set views with new info
-    self.tableview.frame = CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-45);
+    self.tableview.frame = CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT);
     self.inputView.frame = containerFrame;
-    
-    
-    // commit animations
+
     [UIView commitAnimations];
 
 }
@@ -252,6 +392,20 @@
     
     
 }
+
+-(void)jumpToLastRow
+{
+    if (self.allMsgFrame.count>5) {
+        //滚动到当前信息
+        NSIndexPath *lastIndexPath = [NSIndexPath indexPathForRow:self.detailArray.count-1 inSection:0];
+        [self.tableview scrollToRowAtIndexPath:lastIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    }else{
+        return;
+    }
+    
+    
+}
+
 #pragma mark -- HPGrowingTextView Delegate
 -(void)growingTextView:(HPGrowingTextView *)growingTextView willChangeHeight:(float)height
 {
@@ -263,7 +417,7 @@
     self.inputView.frame = r;
 }
 //处理swipe
--(void) initRecognizer:(UIGestureRecognizer *)recognizer
+-(void) initMsgSwipeRecognizer:(UIGestureRecognizer *)recognizer
 {
     [self.textView resignFirstResponder];
 }
@@ -271,8 +425,37 @@
 //返回上一层界面
 -(void)arearBtnClick:(UIGestureRecognizer *)recognizer
 {
-    //VCLog(@"back");
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    if ([self.arearLabel.text isEqualToString:@"取消"]) {
+        
+        [self cancelCheckCell];
+        
+    }else{
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+    
+    
+}
+
+//取消选中cell
+-(void)cancelCheckCell
+{
+    [self.tableview setEditing:NO animated:YES];
+    [self setArearLabelTitle];
+    [UIView beginAnimations:@"" context:nil];
+    [UIView setAnimationCurve:.5];
+    editView.frame = CGRectMake(0, DEVICE_HEIGHT, DEVICE_WIDTH, 50);
+    [UIView commitAnimations];
+    
+    [self.callOutBtn setImage:[UIImage imageNamed:@"actionbar_call_hub32"]];
+    [self.callOutBtn setEnabled:YES];
+    if (indexpathArray.count <= 0) {
+        [editView.copysButton setEnabled:NO];
+        [editView.sharesButton setEnabled:NO];
+        [editView.deleteButton setEnabled:NO];
+        
+    }
+
+    //[self.tableview reloadData];
 }
 
 #pragma mark -- UITableView
@@ -283,7 +466,7 @@
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return allMsgFrame.count;
+    return self.allMsgFrame.count;
     //return _resultArray.count;
 }
 
@@ -292,7 +475,7 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 
-    return [allMsgFrame [indexPath.row] cellHeight];
+    return [self.allMsgFrame [indexPath.row] cellHeight];
 }
 
 //返回cell
@@ -300,31 +483,79 @@
 {
     static NSString *CellIdentifier = @"Cell";
     MsgDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    
+    cell.selectedBackgroundView.backgroundColor = [UIColor clearColor];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     if (cell == nil) {
         cell = [[MsgDetailCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        longPress =[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressAction:)];
+        longPress.minimumPressDuration = 1.f;
+        longPress.delegate = self;
     }
     
     NSInteger aa = indexPath.row;
     // 设置数据
-    cell.msgFrame = allMsgFrame[aa];
-    
+    cell.msgFrame = self.allMsgFrame[aa];
+    //VCLog(@"state:%@",[array[indexPath.row] msgState]);
+    [cell.contentBtn addGestureRecognizer:longPress];
     return cell;
 }
 
-//选中cell
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+#pragma mark - -changerightMargin delegate
+-(CGFloat)changeRightMargin
 {
+    /*
+    if (editView.frame.origin.y == DEVICE_HEIGHT-50) {
+        return 30;
+    }
+     */
+    return 0;
+    
+    
     
 }
 
+-(void)longPressAction:(UIGestureRecognizer *)recongizer
+{
+    if (recongizer.state == UIGestureRecognizerStateBegan) {
+        VCLog(@"longPress");
+        
+        //
+        [self.tableview setEditing:YES animated:YES];
+        self.arearLabel.text = @"取消";
+        [UIView beginAnimations:@"" context:nil];
+        [UIView setAnimationCurve:.5];
+        editView.frame = CGRectMake(0, DEVICE_HEIGHT-50, DEVICE_WIDTH, 50);
+        [UIView commitAnimations];
+        
+        [self.callOutBtn setImage:[UIImage imageNamed:@""]];
+        [self.callOutBtn setTitle:@""];
+        [self.callOutBtn setEnabled:NO];
+    }
+    [self getResouce];
+    
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCellEditingStyle result = UITableViewCellEditingStyleNone;//默认没有编辑风格
+    if ([tableView isEqual:self.tableview]) {
+        //出现圈圈
+        result  =  UITableViewCellEditingStyleDelete | UITableViewCellEditingStyleInsert;
+    }
+    
+    return result;
+}
+
+
+
+
 //导航栏右边按钮拨-拨打电话
-- (IBAction)callBtn:(UIBarButtonItem *)sender {
+- (IBAction)callOutBtn:(UIBarButtonItem *)sender {
     
     NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:self.datailDatas.hisName,@"hisName",self.datailDatas.hisNumber,@"hisNumber", nil];
     
+    VCLog(@"number:%@",self.datailDatas.hisNumber);
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kCallingBtnClick object:self userInfo:dict]];
-    
     
 }
 
@@ -332,7 +563,7 @@
 - (IBAction)ContactsInfo:(UIBarButtonItem *)sender {
    
     [self.navigationController popToRootViewControllerAnimated:YES];
-    //[self popoverPresentationController];
+    
 }
 
 //发送信息
@@ -342,30 +573,32 @@
         
         NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
         NSDate *date = [NSDate date];
-        fmt.dateFormat = @"yyyy/MM/dd HH:mm"; // @"yyyy-MM-dd HH:mm:ss"
+        fmt.dateFormat = @"yy/M/d HH:mm"; // @"yyyy-MM-dd HH:mm:ss"
         NSString *time = [fmt stringFromDate:date];
         [self addMessageWithContent:self.textView.text time:time];
         
-        [self.tableview reloadData];
         //关闭键盘
-        //[self.textView resignFirstResponder];
+        [self.textView resignFirstResponder];
         
-        //保存数据
-        NSError *error;
-        NSString *path = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Message" ofType:@"plist"] encoding:NSUTF8StringEncoding error:&error];
-        [self.textView.text writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
+        //保存到数据库
+        TXData *txdata =  [[TXData alloc] init];
+        txdata.msgSender = @"1";
+        txdata.msgTime = time;
+        txdata.msgContent = self.textView.text;
+        txdata.msgAccepter = self.datailDatas.hisNumber;
+        txdata.msgStates = @"0";
         
-        
+        [txsqlite addInfo:txdata inTable:MESSAGE_RECEIVE_RECORDS_TABLE_NAME withSql:MESSAGE_RECORDS_ADDINFO_SQL];
+        //self.detailArray =[txsqlite searchARecordWithNumber:self.datailDatas.hisNumber fromTable:MESSAGE_RECEIVE_RECORDS_TABLE_NAME withSql:SELECT_A_CONVERSATION_SQL];
         
     }
     self.textView.text = nil;
     
-    //滚动到当前信息
-    NSIndexPath *lastIndexPath = [NSIndexPath indexPathForRow:array.count-1 inSection:0];
-    [self.tableview scrollToRowAtIndexPath:lastIndexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-    
+    [self jumpToLastRow];
+    [self.tableview reloadData];
 }
 
+/*
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
     //移除键盘显示和隐藏消息注册信息
@@ -373,7 +606,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 
 }
-
+*/
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }

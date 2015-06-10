@@ -16,7 +16,4 @@
 //data对象数组：通话记录
 @property TXData *data;
 
--(void)addShadeAndAlertView;
-
-
 @end

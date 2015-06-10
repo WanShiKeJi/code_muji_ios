@@ -1,9 +1,9 @@
 //
 //  ABELTableViewIndex.h
-//  ABELTableViewDemo
+//  TXBoxNew
 //
-//  Created by abel on 14-4-28.
-//  Copyright (c) 2014年 abel. All rights reserved.
+//  Created by Naron on 15/4/25.
+//  Copyright (c) 2015年 playtime. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -40,7 +40,7 @@
 - (void)tableViewIndexTouchesEnd:(BATableViewIndex *)tableViewIndex;
 
 /**
- *  TableView中右边右边索引title
+ *  TableView右边索引title
  *
  *  @param tableViewIndex 触发tableViewIndexTitle对象
  *

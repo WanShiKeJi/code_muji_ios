@@ -142,16 +142,19 @@
 #pragma mark 删除号码
 -(void)del
 {
+    
     if (self.textsearch.text.length){
+        
+        NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:[self.textsearch.text substringWithRange:NSMakeRange(self.textsearch.text.length-1, 1)],@"lastChar", nil];
+        
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kDeleteCharNoti object:self userInfo:dict]];
         
         self.textsearch.text = [self.textsearch.text stringByReplacingCharactersInRange:NSMakeRange(textsearch.text.length-1, 1) withString:@""];
     }
     singleton.singletonValue = self.textsearch.text;
     
     //2.通过通知中心发送通知
-    if (self.textsearch.text.length>0) {
-        [[NSNotificationCenter defaultCenter] postNotification:notification];
-    }
+    [[NSNotificationCenter defaultCenter] postNotification:notification];
 }
 #pragma mark 监听item点击
 - (void)itemClick:(UIButton *)item
@@ -159,7 +162,7 @@
 
     NSString *text = self.textsearch.text;
     NSInteger tag = item.tag;
-    //1.显示呼叫btn
+    //
     switch (tag) {
         case 10:
             self.textsearch.text = [NSString stringWithFormat:@"%@*",text];
@@ -180,14 +183,14 @@
     singleton.singletonValue = self.textsearch.text;
     //VCLog(@"singletonValue: %@",singleton.singletonValue);
 
-
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:self.textsearch.text ,@"searchBarText", nil];
     //2.通过通知中心发送通知
-    if (self.textsearch.text.length>0) {
-        [[NSNotificationCenter defaultCenter] postNotification:notification];
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:kInputCharNoti object:self userInfo:dict]];
         
-    }
+    [[NSNotificationCenter defaultCenter] postNotification:notification];
     
 }
+
 
 //取消系统键盘弹出
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
